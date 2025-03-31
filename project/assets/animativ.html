@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiloSoft - Hukuk Sembolleri Animasyonu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3B82F6;
+            --secondary-color: #1E40AF;
+            --light-color: #f8fafc;
+            --dark-color: #0f172a;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: transparent;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+        }
+
+        .orbit-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .center-icon {
+            position: absolute;
+            width: 142.2;
+            height: 142.2px;
+            z-index: 10;
+        }
+
+        .orbit-circle {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            animation: rotate 30s linear infinite;
+        }
+
+        .orbit-icon {
+            position: absolute;
+            transform-origin: center;
+            animation: self-rotate 30s linear infinite;
+        }
+
+        /* Her bir ikon için özel konumlandırma */
+        #gerb {
+            width: 50.3px;
+            height: 55.46px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #vergi {
+            width: 56.73px;
+            height: 56.73px;
+            top: 15%;
+            right: 15%;
+        }
+
+        #edliyye {
+            width: 53.13px;
+            height: 58.2px;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+
+        #gomruk {
+            width: 58.06px;
+            height: 58.4px;
+            bottom: 15%;
+            right: 15%;
+        }
+
+        #prokuror {
+            width: 61.4px;
+            height: 61.6px;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #mehkeme {
+            width: 56.8px;
+            height: 56.8px;
+            bottom: 15%;
+            left: 15%;
+        }
+
+        #vekillik {
+            width: 56.93px;
+            height: 56.93px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        #edliyye2 {
+            width: 53.13px;
+            height: 58.2px;
+            top: 15%;
+            left: 15%;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes self-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        /* Transform düzeltmeleri */
+        #gerb {
+            animation: gerb-rotate 30s linear infinite;
+        }
+
+        #prokuror {
+            animation: prokuror-rotate 30s linear infinite;
+        }
+
+        #vekillik {
+            animation: vekillik-rotate 30s linear infinite;
+        }
+
+        #edliyye {
+            animation: edliyye-rotate 30s linear infinite;
+        }
+
+        @keyframes gerb-rotate {
+            from { transform: translateX(-50%) rotate(0deg); }
+            to { transform: translateX(-50%) rotate(-360deg); }
+        }
+
+        @keyframes prokuror-rotate {
+            from { transform: translateX(-50%) rotate(0deg); }
+            to { transform: translateX(-50%) rotate(-360deg); }
+        }
+
+        @keyframes vekillik-rotate {
+            from { transform: translateY(-50%) rotate(0deg); }
+            to { transform: translateY(-50%) rotate(-360deg); }
+        }
+
+        @keyframes edliyye-rotate {
+            from { transform: translateY(-50%) rotate(0deg); }
+            to { transform: translateY(-50%) rotate(-360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="orbit-container">
+        <!-- Merkezdeki sabit terazi -->
+        <img src="terezi.png" alt="Terazi" class="center-icon">
+        
+        <!-- Dönen daire -->
+        <div class="orbit-circle">
+            <!-- Dönen ikonlar -->
+            <img src="gerb.png" alt="Gerb" class="orbit-icon" id="gerb">
+            <img src="vergi.png" alt="Vergi" class="orbit-icon" id="vergi">
+            <img src="edliyye.png" alt="Edliyye" class="orbit-icon" id="edliyye">
+            <img src="gomruk.png" alt="Gomruk" class="orbit-icon" id="gomruk">
+            <img src="prokuror.png" alt="Prokuror" class="orbit-icon" id="prokuror">
+            <img src="mehkeme.png" alt="Mehkeme" class="orbit-icon" id="mehkeme">
+            <img src="vekillik.png" alt="Vekillik" class="orbit-icon" id="vekillik">
+            <img src="edliyye.png" alt="Edliyye2" class="orbit-icon" id="edliyye2">
+        </div>
+    </div>
+</body>
+</html> 

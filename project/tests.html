@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onlayn Testlər | FiloSoft</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/js/common.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.test-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.test-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.test-card img {
+  transition: all 0.5s ease;
+}
+.test-card:hover img {
+  transform: scale(1.1);
+}
+.test-card .overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(59, 130, 246, 0.9), transparent);
+  overflow: hidden;
+  width: 100%;
+  height: 0;
+  transition: all 0.5s ease;
+}
+.test-card:hover .overlay {
+  height: 100%;
+}
+.test-card .overlay-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  text-align: center;
+  color: white;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  transition-delay: 0.1s;
+}
+.test-card:hover .overlay-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+.modal.active {
+  display: flex;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { background: rgba(0, 0, 0, 0); backdrop-filter: blur(0px); }
+  to { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); }
+}
+.modal-content {
+  transform: translateY(50px);
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+.modal.active .modal-content {
+  transform: translateY(0);
+  opacity: 1;
+  animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes modalSlideIn {
+  from { transform: translateY(50px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.test-card:hover .test-card-logo {
+  transform: none;
+  top: auto;
+  left: auto;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  z-index: 25;
+}
+.category-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1500;
+  backdrop-filter: blur(5px);
+  align-items: center;
+  justify-content: center;
+}
+.category-modal.active {
+  display: flex;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+.category-modal .modal-content {
+  position: relative;
+  max-width: 90%;
+  width: 600px;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+  transform: translateY(50px);
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+.category-modal.active .modal-content {
+  transform: translateY(0);
+  opacity: 1;
+  animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.category-list {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.category-list::-webkit-scrollbar {
+  width: 8px;
+}
+.category-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.category-list::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 10px;
+}
+.category-list::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+.category-item {
+  transition: all 0.2s ease;
+}
+.category-item:hover {
+  background-color: #f3f4f6;
+  transform: translateX(5px);
+}
+</style>
+</head>
+<body class="bg-white min-h-screen">
+<nav class="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center">
+<a href="index.html">
+  <img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16">
+</a>
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<a href="index.html" class="text-gray-700 hover:text-primary">Əsas Səhifə</a>
+<a href="tests.html" class="text-primary font-medium">Onlayn Testlər</a>
+<a href="courses.html" class="text-gray-700 hover:text-primary">Onlayn Dərslər</a>
+<a href="haqqimizda.html" class="text-gray-700 hover:text-primary">Haqqımızda</a>
+<div id="authLinks" class="flex space-x-2">
+  <a href="auth.html" class="px-4 py-2 text-primary hover:text-blue-700 transition-colors">Daxil ol</a>
+  <a href="auth.html" class="px-4 py-2 border border-primary text-primary !rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Qeydiyyatdan Keç</a>
+</div>
+<div id="profileLink" class="hidden">
+  <a href="profile.html" class="px-4 py-2 text-primary hover:text-blue-700 transition-colors flex items-center">
+    <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center mr-2">
+      <i class="ri-user-fill text-white text-lg"></i>
+    </span>
+    <span>Profil</span>
+  </a>
+</div>
+</div>
+<div class="md:hidden flex items-center">
+<button class="text-gray-700 hover:text-primary">
+<i class="ri-menu-line text-2xl"></i>
+</button>
+</div>
+</div>
+</div>
+</nav>
+
+<main class="pt-20">
+<!-- Active Tests Section (Initially hidden) -->
+<section id="activeTestsSection" class="bg-gradient-to-r from-indigo-100 to-indigo-50 py-8 mb-6 hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-bold text-gray-900 flex items-center">
+        <i class="ri-time-line text-primary mr-2"></i>
+        Aktiv İmtahanlarım
+      </h2>
+      <button id="clearActiveTests" class="text-sm text-gray-600 hover:text-red-500 flex items-center">
+        <i class="ri-delete-bin-line mr-1"></i>
+        Təmizlə
+      </button>
+    </div>
+    <div id="activeTestsContainer" class="bg-white rounded-xl shadow-md p-6">
+      <!-- Active test cards will be inserted here -->
+    </div>
+  </div>
+</section>
+
+<!-- Header Section -->
+<section class="bg-gradient-to-r from-primary/5 to-primary/10 py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">Onlayn Testlərimiz</h1>
+      <p class="text-lg text-gray-600 mx-auto max-w-3xl">FiloSoft ilə müxtəlif sahələrdə biliklərinizi imtahan edin və özünüzü inkişaf etdirin. Aşağıdakı test kateqoriyalarından birini seçin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Tests Grid Section -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+      <!-- Test Card 1 -->
+      <div class="test-card rounded-xl shadow-lg overflow-hidden" data-test="vekillik">
+        <div class="relative h-80 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+          <img src="assets/vekillik.png" alt="Vəkillik Testi" class="w-40 h-40 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 test-card-logo">
+          <div class="overlay">
+            <img src="VƏKİLLİK.png" alt="Background" class="w-full h-full object-contain absolute top-0 left-0 opacity-70">
+            <div class="overlay-content" style="z-index: 20;">
+              <h3 class="text-xl font-semibold mb-2">Vəkillik Testi</h3>
+              <p class="mb-4">Hüquqi biliklərinizi yoxlayın və vəkillik imtahanına hazırlaşın</p>
+              <button onclick="if(isLoggedIn()) { openCategoryModal('vekillik'); } else { window.location.href = 'auth.html'; } event.stopPropagation();" class="test-button px-6 py-2 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors">
+                Testə keçid
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 text-center">
+          <h3 class="text-xl font-semibold text-gray-900">Vəkillik</h3>
+        </div>
+      </div>
+
+      <!-- Test Card 2 -->
+      <div class="test-card rounded-xl shadow-lg overflow-hidden" data-test="mehkeme">
+        <div class="relative h-80 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+          <img src="assets/mehkeme.png" alt="Hakimlik Testi" class="w-40 h-40 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 test-card-logo">
+          <div class="overlay">
+            <img src="HAKİMLİK.jpg" alt="Background" class="w-full h-full object-contain absolute top-0 left-0 opacity-70">
+            <div class="overlay-content" style="z-index: 20;">
+              <h3 class="text-xl font-semibold mb-2">Hakimlik Testi</h3>
+              <p class="mb-4">Hakimlik imtahanına hazırlaşın və biliyinizi sınayın</p>
+              <button onclick="if(isLoggedIn()) { openCategoryModal('mehkeme'); } else { window.location.href = 'auth.html'; } event.stopPropagation();" class="test-button px-6 py-2 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors">
+                Testə keçid
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 text-center">
+          <h3 class="text-xl font-semibold text-gray-900">Hakimlik</h3>
+        </div>
+      </div>
+
+      <!-- Test Card 3 -->
+      <div class="test-card rounded-xl shadow-lg overflow-hidden" data-test="prokuror">
+        <div class="relative h-80 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+          <img src="assets/prokuror.png" alt="Prokurorluq Testi" class="w-40 h-40 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 test-card-logo">
+          <div class="overlay">
+            <img src="POLİS.jpeg" alt="Background" class="w-full h-full object-contain absolute top-0 left-0 opacity-70">
+            <div class="overlay-content" style="z-index: 20;">
+              <h3 class="text-xl font-semibold mb-2">Prokurorluq Testi</h3>
+              <p class="mb-4">Prokurorluq imtahanına hazırlaşın və biliklərinizi artırın</p>
+              <button onclick="if(isLoggedIn()) { openCategoryModal('prokuror'); } else { window.location.href = 'auth.html'; } event.stopPropagation();" class="test-button px-6 py-2 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors">
+                Testə keçid
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 text-center">
+          <h3 class="text-xl font-semibold text-gray-900">Prokurorluq</h3>
+        </div>
+      </div>
+
+      <!-- Test Card 4 -->
+      <div class="test-card rounded-xl shadow-lg overflow-hidden" data-test="notarius">
+        <div class="relative h-80 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+          <img src="assets/notarius.png" alt="Notarius Testi" class="w-40 h-40 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 test-card-logo">
+          <div class="overlay">
+            <img src="NOTARİAT.png" alt="Background" class="w-full h-full object-contain absolute top-0 left-0 opacity-70">
+            <div class="overlay-content" style="z-index: 20;">
+              <h3 class="text-xl font-semibold mb-2">Notarius Testi</h3>
+              <p class="mb-4">Notarius imtahanına hazırlaşın və biliyinizi yoxlayın</p>
+              <button onclick="if(isLoggedIn()) { openCategoryModal('notarius'); } else { window.location.href = 'auth.html'; } event.stopPropagation();" class="test-button px-6 py-2 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors">
+                Testə keçid
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 text-center">
+          <h3 class="text-xl font-semibold text-gray-900">Notarius</h3>
+        </div>
+      </div>
+
+      <!-- Test Card 5 -->
+      <div class="test-card rounded-xl shadow-lg overflow-hidden" data-test="edliyye">
+        <div class="relative h-80 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+          <img src="assets/edliyye.png" alt="Ədliyyə Testi" class="w-40 h-40 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 test-card-logo">
+          <div class="overlay">
+            <img src="ƏDLİYYƏ.png" alt="Background" class="w-full h-full object-contain absolute top-0 left-0 opacity-70">
+            <div class="overlay-content" style="z-index: 20;">
+              <h3 class="text-xl font-semibold mb-2">Ədliyyə Testi</h3>
+              <p class="mb-4">Ədliyyə işçilərinin imtahanına hazırlaşın</p>
+              <button onclick="if(isLoggedIn()) { openCategoryModal('edliyye'); } else { window.location.href = 'auth.html'; } event.stopPropagation();" class="test-button px-6 py-2 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors">
+                Testə keçid
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 text-center">
+          <h3 class="text-xl font-semibold text-gray-900">Ədliyyə</h3>
+        </div>
+      </div>
+
+      <!-- Test Card 6 -->
+      <div class="test-card rounded-xl shadow-lg overflow-hidden" data-test="vergi">
+        <div class="relative h-80 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+          <img src="assets/vergi.png" alt="Vergi Testi" class="w-40 h-40 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 test-card-logo">
+          <div class="overlay">
+            <img src="VERGİ.jpg" alt="Background" class="w-full h-full object-contain absolute top-0 left-0 opacity-70">
+            <div class="overlay-content" style="z-index: 20;">
+              <h3 class="text-xl font-semibold mb-2">Vergi Testi</h3>
+              <p class="mb-4">Vergi hüququ və vergi məsələləri üzrə biliklərinizi sınayın</p>
+              <button onclick="if(isLoggedIn()) { openCategoryModal('vergi'); } else { window.location.href = 'auth.html'; } event.stopPropagation();" class="test-button px-6 py-2 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors">
+                Testə keçid
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 text-center">
+          <h3 class="text-xl font-semibold text-gray-900">Vergi</h3>
+        </div>
+      </div>
+
+      <!-- Test Card 7 -->
+      <div class="test-card rounded-xl shadow-lg overflow-hidden" data-test="gomruk">
+        <div class="relative h-80 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+          <img src="assets/gomruk.png" alt="Gömrük Testi" class="w-40 h-40 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 test-card-logo">
+          <div class="overlay">
+            <img src="GÖMRÜK.png" alt="Background" class="w-full h-full object-contain absolute top-0 left-0 opacity-70">
+            <div class="overlay-content" style="z-index: 20;">
+              <h3 class="text-xl font-semibold mb-2">Gömrük Testi</h3>
+              <p class="mb-4">Gömrük məsələləri üzrə biliklərinizi inkişaf etdirin</p>
+              <button onclick="if(isLoggedIn()) { openCategoryModal('gomruk'); } else { window.location.href = 'auth.html'; } event.stopPropagation();" class="test-button px-6 py-2 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors">
+                Testə keçid
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 text-center">
+          <h3 class="text-xl font-semibold text-gray-900">Gömrük</h3>
+        </div>
+      </div>
+
+      <!-- Test Card 8 -->
+      <div class="test-card rounded-xl shadow-lg overflow-hidden" data-test="gerb">
+        <div class="relative h-80 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+          <img src="assets/gerb.png" alt="Ümumi Hüquq Testi" class="w-40 h-40 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 test-card-logo">
+          <div class="overlay">
+            <img src="DÖVLƏT QULLUĞU.png" alt="Background" class="w-full h-full object-contain absolute top-0 left-0 opacity-70">
+            <div class="overlay-content" style="z-index: 20;">
+              <h3 class="text-xl font-semibold mb-2">Dövlət Qulluğu Testi</h3>
+              <p class="mb-4">Dövlət qulluğu prinsipləri üzrə biliklərinizi yoxlayın</p>
+              <button onclick="if(isLoggedIn()) { openCategoryModal('gerb'); } else { window.location.href = 'auth.html'; } event.stopPropagation();" class="test-button px-6 py-2 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors">
+                Testə keçid
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 text-center">
+          <h3 class="text-xl font-semibold text-gray-900">Dövlət Qulluğu</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Test Categories Modal -->
+<div id="categoriesModal" class="category-modal">
+  <div class="max-w-2xl w-full mx-auto my-auto bg-white rounded-xl shadow-2xl p-6 modal-content">
+    <div class="flex justify-between items-start mb-6">
+      <h2 id="categoryTitle" class="text-2xl font-bold text-gray-900">Test kateqoriyasını seçin</h2>
+      <button id="closeCategoryModal" class="text-gray-500 hover:text-gray-700">
+        <i class="ri-close-line text-2xl"></i>
+      </button>
+    </div>
+    <div class="category-list">
+      <div class="grid grid-cols-1 gap-3">
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Qarışıq suallar</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Azərbaycan Respublikasının Konstitusiyası</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Naxçıvan MR Konstitusiyası</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Cinayət Məcəlləsi</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Cinayət-Prosessual Məcəllə</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Vəkillər və Vəkillik fəaliyyəti haqqında qanun</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Cəzaların İcrası Məcəlləsi</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Mülki Məcəllə</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Mülki-Prosessual Məcəllə</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">İnzibati Xətalar Məcəlləsi</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Vergi Məcəlləsi</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Gömrük Məcəlləsi</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Prokurorluq haqqında qanun</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">İnzibati icraat haqqında qanun</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Ailə Məcəlləsi</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Əmək Məcəlləsi</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">İnzibati Prosessual Məcəllə</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Məhkəmələr və hakimlər haqqında qanun</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Xüsusi hissə</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">İnzibati Xətalar Haqqında İşlər Üzrə İcraat</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Mediasiya haqqında qanun</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Məhkəmə Ekspertizası Fəaliyyəti haqqında qanun</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Məhkəmə-Hüquq Şurası haqqında qanun</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Normativ Hüquqi Aktlar haqqında Konstitusiya qanunu</p>
+        </div>
+        <div class="category-item p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-primary">
+          <p class="font-medium">Torpaq Məcəlləsi</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Exam Type Selection Modal -->
+<div id="examTypeModal" class="category-modal">
+  <div class="max-w-xl w-full mx-auto my-auto bg-white rounded-xl shadow-2xl p-6 modal-content">
+    <div class="flex justify-between items-start mb-6">
+      <h2 id="examTypeTitle" class="text-2xl font-bold text-gray-900">İmtahanı seçin</h2>
+      <button id="closeExamTypeModal" class="text-gray-500 hover:text-gray-700">
+        <i class="ri-close-line text-2xl"></i>
+      </button>
+    </div>
+    <div class="space-y-6">
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Short Exam Option -->
+        <div class="exam-option p-5 border border-gray-200 rounded-lg cursor-pointer hover:border-primary hover:bg-blue-50 transition-colors" data-exam-type="short">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">Qısa imtahan</h3>
+          <div class="space-y-3">
+            <div class="flex items-center text-gray-700">
+              <i class="ri-question-line text-xl text-primary mr-3"></i>
+              <span>50 sual</span>
+            </div>
+            <div class="flex items-center text-gray-700">
+              <i class="ri-time-line text-xl text-primary mr-3"></i>
+              <span>01 saat 30 dəq 00 san</span>
+            </div>
+            <div class="flex items-center text-gray-700">
+              <i class="ri-money-dollar-circle-line text-xl text-primary mr-3"></i>
+              <span>10 AZN</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Long Exam Option -->
+        <div class="exam-option p-5 border border-gray-200 rounded-lg cursor-pointer hover:border-primary hover:bg-blue-50 transition-colors" data-exam-type="long">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">Uzun imtahan</h3>
+          <div class="space-y-3">
+            <div class="flex items-center text-gray-700">
+              <i class="ri-question-line text-xl text-primary mr-3"></i>
+              <span>100 sual</span>
+            </div>
+            <div class="flex items-center text-gray-700">
+              <i class="ri-time-line text-xl text-primary mr-3"></i>
+              <span>03 saat 00 dəq 00 san</span>
+            </div>
+            <div class="flex items-center text-gray-700">
+              <i class="ri-money-dollar-circle-line text-xl text-primary mr-3"></i>
+              <span>20 AZN</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="grid md:grid-cols-4 gap-8">
+  <div>
+  <img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16  mb-4">
+  <p class="text-gray-400">Rəqəmsal təhsil hər yerdə</p>
+  </div>
+  <div>
+  <h4 class="text-lg font-semibold mb-4">Sürətli əlçatanlıq</h4>
+  <ul class="space-y-2">
+  <li><a href="#" class="text-gray-400 hover:text-white">Əsas Səhifə</a></li>
+  <li><a href="#" class="text-gray-400 hover:text-white">Onlayn Testlər</a></li>
+  <li><a href="#" class="text-gray-400 hover:text-white">Onlayn Dərslər</a></li>
+  <li><a href="#" class="text-gray-400 hover:text-white">Haqqımızda</a></li>
+  </ul>
+  </div>
+  <div>
+  <h4 class="text-lg font-semibold mb-4">Əlaqə</h4>
+  <ul class="space-y-2">
+  <li class="text-gray-400">info@filosoft.az</li>
+  <li class="text-gray-400">+994 00 000 00 00</li>
+  <li class="text-gray-400">Azərbaycan, Baku</li>
+  </ul>
+  </div>
+  <div>
+  <h4 class="text-lg font-semibold mb-4">Sosial Media</h4>
+  <div class="flex space-x-4">
+  <a href="#" class="text-gray-400 hover:text-white">
+  <i class="ri-linkedin-fill text-2xl"></i>
+  </a>
+  <a href="#" class="text-gray-400 hover:text-white">
+  <i class="ri-facebook-fill text-2xl"></i>
+  </a>
+  <a href="#" class="text-gray-400 hover:text-white">
+  <i class="ri-instagram-fill text-2xl"></i>
+  </a>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+  <p>&copy; 2025 FiloSoft. Müəlliflik hüququ qorunur.</p>
+  </div>
+  </div>
+  </footer>
+  
+
+<script>
+// Test data
+const testData = {
+  vekillik: {
+    title: "Vəkillik Testi",
+    description: "Hüquqi biliklərinizi yoxlayın və vəkillik imtahanına hazırlaşın",
+    details: "Bu test vəkillik imtahanı üçün hazırlanmışdır və konstitusiya, mülki, cinayət, inzibati və kommersiya hüququ kimi əsas sahələri əhatə edir. Test 50 sualdan ibarətdir və tamamlanması üçün 120 dəqiqə vaxt verilir.",
+    features: [
+      "50 test sualı",
+      "120 dəqiqə müddət",
+      "Minimum keçid balı: 70%",
+      "Nəticələrin dərhal göstərilməsi",
+      "Hərtərəfli cavab açıqlamaları"
+    ]
+  },
+  mehkeme: {
+    title: "Hakimlik Testi",
+    description: "Hakimlik imtahanına hazırlaşın və biliyinizi sınayın",
+    details: "Bu test hakimlik imtahanına hazırlaşmaq üçün nəzərdə tutulub və qanunvericilik, məhkəmə təcrübəsi və prosessual hüquq sahələrini əhatə edir. Testin tamamlanması üçün 3 saat vaxt verilir.",
+    features: [
+      "75 test sualı",
+      "3 saat müddət",
+      "Minimum keçid balı: 75%",
+      "Detallı nəticə analizi",
+      "Müvafiq qanunvericiliyə istinadlar"
+    ]
+  },
+  prokuror: {
+    title: "Prokurorluq Testi",
+    description: "Prokurorluq imtahanına hazırlaşın və biliklərinizi artırın",
+    details: "Bu test prokurorluq sahəsində ixtisaslaşmaq istəyənlər üçün nəzərdə tutulmuşdur. Test cinayət təqibi, dövlət ittihamı və prokurorluq fəaliyyətinin digər aspektlərini əhatə edir.",
+    features: [
+      "60 test sualı",
+      "150 dəqiqə müddət",
+      "Minimum keçid balı: 72%",
+      "Praktiki məsələ həlləri",
+      "Müvafiq qanunvericiliyə istinadlar"
+    ]
+  },
+  notarius: {
+    title: "Notarius Testi",
+    description: "Notarius imtahanına hazırlaşın və biliyinizi yoxlayın",
+    details: "Bu test notariuslar üçün tələb olunan bilik və səriştələri ölçür. Test notariat fəaliyyəti, sənədlərin təsdiqi və qeydiyyatı, vərəsəlik və mülkiyyət məsələlərini əhatə edir.",
+    features: [
+      "45 test sualı",
+      "90 dəqiqə müddət",
+      "Minimum keçid balı: 70%",
+      "Praktiki sənəd nümunələri",
+      "Müvafiq qanunvericiliyə istinadlar"
+    ]
+  },
+  edliyye: {
+    title: "Ədliyyə Testi",
+    description: "Ədliyyə işçilərinin imtahanına hazırlaşın",
+    details: "Bu test ədliyyə orqanlarında çalışmaq istəyənlər üçün hazırlanmışdır. Test ədliyyə sistemi, məhkəmə icraatı və hüquqi xidmətlər sahəsində bilikləri yoxlayır.",
+    features: [
+      "55 test sualı",
+      "120 dəqiqə müddət",
+      "Minimum keçid balı: 68%",
+      "Praktiki məsələ həlləri",
+      "Müvafiq qanunvericiliyə istinadlar"
+    ]
+  },
+  vergi: {
+    title: "Vergi Testi",
+    description: "Vergi hüququ və vergi məsələləri üzrə biliklərinizi sınayın",
+    details: "Bu test vergi qanunvericiliyi və vergi sistemi sahəsində bilikləri ölçür. Test vergitutma, vergi hesabatları və vergi nəzarəti kimi mövzuları əhatə edir.",
+    features: [
+      "50 test sualı",
+      "100 dəqiqə müddət",
+      "Minimum keçid balı: 65%",
+      "Praktiki hesablama məsələləri",
+      "Müvafiq qanunvericiliyə istinadlar"
+    ]
+  },
+  gomruk: {
+    title: "Gömrük Testi",
+    description: "Gömrük məsələləri üzrə biliklərinizi inkişaf etdirin",
+    details: "Bu test gömrük qanunvericiliyi və gömrük prosedurları sahəsində bilikləri yoxlayır. Test gömrük rüsumları, idxal-ixrac əməliyyatları və sərhəd nəzarəti kimi mövzuları əhatə edir.",
+    features: [
+      "48 test sualı",
+      "90 dəqiqə müddət",
+      "Minimum keçid balı: 70%",
+      "Praktiki məsələ həlləri",
+      "Müvafiq qanunvericiliyə istinadlar"
+    ]
+  },
+  gerb: {
+    title: "Dövlət Qulluğu Testi",
+    description: "Dövlət qulluğu prinsipləri üzrə biliklərinizi yoxlayın",
+    details: "Bu test dövlət idarəetməsi və dövlət qulluğu sahəsində bilikləri yoxlayır. Test dövlət qulluğuna qəbul, dövlət qulluğunda etika, dövlət idarəçiliyi kimi mövzuları əhatə edir.",
+    features: [
+      "65 test sualı",
+      "120 dəqiqə müddət",
+      "Minimum keçid balı: 68%",
+      "Detallı nəticə analizi",
+      "Müvafiq qanunvericiliyə istinadlar"
+    ]
+  }
+};
+
+// Current variables to track selection
+let currentTestType = '';
+let currentCategory = '';
+
+function openCategoryModal(testType) {
+  // Set the current test type
+  currentTestType = testType;
+      
+  // Update category title
+  const testTitle = testData[testType]?.title || 'Test kateqoriyası';
+  document.getElementById('categoryTitle').textContent = `${testTitle} - Bölməni seçin`;
+      
+  // Open the categories modal
+  document.getElementById('categoriesModal').classList.add('active');
+  console.log('Opening categories modal for:', testType);
+}
+
+// Close category modal with the X button
+document.getElementById('closeCategoryModal').addEventListener('click', function() {
+  document.getElementById('categoriesModal').classList.remove('active');
+});
+
+// Close categories modal when clicking outside the content
+document.getElementById('categoriesModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    this.classList.remove('active');
+  }
+});
+
+// Handle category selection
+document.querySelectorAll('.category-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const categoryName = this.querySelector('p').textContent;
+    currentCategory = categoryName;
+    console.log(`Selected ${categoryName} for ${currentTestType} test`);
+    
+    // Close the categories modal
+    document.getElementById('categoriesModal').classList.remove('active');
+    
+    // Update exam type title to include category
+    document.getElementById('examTypeTitle').textContent = `${testData[currentTestType]?.title} - ${categoryName} - İmtahanı seçin`;
+    
+    // Show exam type selection modal
+    document.getElementById('examTypeModal').classList.add('active');
+  });
+});
+
+// Handle exam type selection
+document.querySelectorAll('.exam-option').forEach(option => {
+  option.addEventListener('click', function() {
+    const examType = this.getAttribute('data-exam-type');
+    const price = examType === 'short' ? '10' : '20';
+    const questions = examType === 'short' ? '50' : '100';
+    
+    console.log(`Selected ${examType} exam for ${currentTestType} - ${currentCategory}`);
+    
+    // Close the modal
+    document.getElementById('examTypeModal').classList.remove('active');
+    
+    // Redirect to payment page
+    const paymentUrl = `payment.html?test=${currentTestType}&category=${encodeURIComponent(currentCategory)}&examType=${examType}&price=${price}&questions=${questions}`;
+    
+    // Instead of alert, redirect directly to payment page
+    window.location.href = paymentUrl;
+  });
+});
+
+// Close exam type modal with the X button
+document.getElementById('closeExamTypeModal').addEventListener('click', function() {
+  document.getElementById('examTypeModal').classList.remove('active');
+});
+
+// Close exam type modal when clicking outside the content
+document.getElementById('examTypeModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    this.classList.remove('active');
+  }
+});
+</script>
+<script src="assets/js/auth.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Check if user is logged in
+    if (isLoggedIn()) {
+      document.getElementById('authLinks').classList.add('hidden');
+      document.getElementById('profileLink').classList.remove('hidden');
+    } else {
+      document.getElementById('authLinks').classList.remove('hidden');
+      document.getElementById('profileLink').classList.add('hidden');
+    }
+    
+    // Modify this part to not interfere with our category selection
+    const testCards = document.querySelectorAll('.test-card');
+    testCards.forEach(card => {
+      // We're now only checking for button clicks via their onclick handlers
+      // No need to check entire card clicks since they no longer do anything
+      /* card.addEventListener('click', function(e) {
+        if (!isLoggedIn() && !e.target.classList.contains('test-button')) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.location.href = 'auth.html';
+        }
+      }); */
+    });
+
+    // Add auth check for category items
+    document.querySelectorAll('.category-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        if (!isLoggedIn()) {
+          e.preventDefault();
+          e.stopPropagation();
+          document.getElementById('categoriesModal').classList.remove('active');
+          window.location.href = 'auth.html';
+        }
+      });
+    });
+    
+    // Check for paused tests and display active tests section if there are any
+    checkForPausedTests();
+    
+    // Add event listener for clearing active tests
+    document.getElementById('clearActiveTests').addEventListener('click', function() {
+      if (confirm('Aktiv imtahanı silmək istədiyinizə əminsiniz?')) {
+        localStorage.removeItem('pausedTest');
+        document.getElementById('activeTestsSection').classList.add('hidden');
+      }
+    });
+  });
+  
+  // Function to check for paused tests
+  function checkForPausedTests() {
+    const pausedTest = localStorage.getItem('pausedTest');
+    
+    if (pausedTest) {
+      try {
+        const testData = JSON.parse(pausedTest);
+        displayPausedTest(testData);
+        
+        // If redirected from test page with paused=true parameter, show a notification
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('paused') === 'true') {
+          showPausedNotification();
+        }
+      } catch (error) {
+        console.error('Error parsing paused test data:', error);
+        localStorage.removeItem('pausedTest');
+      }
+    }
+  }
+  
+  // Function to display paused test in active tests section
+  function displayPausedTest(testData) {
+    const activeTestsSection = document.getElementById('activeTestsSection');
+    const activeTestsContainer = document.getElementById('activeTestsContainer');
+    
+    // Format the time remaining in HH:MM:SS
+    const hours = Math.floor(testData.timeLeft / 3600);
+    const minutes = Math.floor((testData.timeLeft % 3600) / 60);
+    const seconds = testData.timeLeft % 60;
+    const timeFormatted = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Get the test title from our testData object
+    const testTitle = testData['testType'] ? (testData[testData.testType]?.title || 'Test') : 'Test';
+    
+    // Calculate the pause duration
+    const pauseTime = testData.timestamp;
+    const currentTime = new Date().getTime();
+    const pauseDuration = Math.floor((currentTime - pauseTime) / (1000 * 60)); // in minutes
+    
+    // Create HTML for the active test card
+    const activeTestHtml = `
+      <div class="flex flex-col md:flex-row md:items-center justify-between">
+        <div class="mb-4 md:mb-0">
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">${testTitle} - ${testData.testCategory}</h3>
+          <p class="text-gray-600 text-sm mb-2">Imtahan növü: ${testData.examType === 'short' ? 'Qısa imtahan' : 'Uzun imtahan'}</p>
+          <div class="flex items-center text-gray-600 text-sm">
+            <span class="flex items-center mr-4"><i class="ri-time-line mr-1"></i> Qalan vaxt: ${timeFormatted}</span>
+            <span class="flex items-center"><i class="ri-pause-line mr-1"></i> ${pauseDuration} dəqiqə əvvəl dayandırılıb</span>
+          </div>
+        </div>
+        <button class="continue-test-btn px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
+          <i class="ri-play-line mr-2"></i>
+          Davam et
+        </button>
+      </div>
+    `;
+    
+    // Update the container and show the section
+    activeTestsContainer.innerHTML = activeTestHtml;
+    activeTestsSection.classList.remove('hidden');
+    
+    // Add event listener to continue button
+    document.querySelector('.continue-test-btn').addEventListener('click', function() {
+      // Redirect to test page
+      window.location.href = `test-start.html?test=${testData.testType}&category=${encodeURIComponent(testData.testCategory)}&examType=${testData.examType}`;
+    });
+  }
+  
+  // Function to show notification when test is paused
+  function showPausedNotification() {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-24 right-4 bg-white p-4 rounded-lg shadow-lg z-50 max-w-md animate-fade-in';
+    notification.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+    notification.style.borderLeft = '4px solid #3b82f6';
+    notification.innerHTML = `
+      <div class="flex items-start">
+        <div class="text-primary mr-3 mt-0.5">
+          <i class="ri-time-line text-xl"></i>
+        </div>
+        <div>
+          <h3 class="font-medium text-gray-900 mb-1">İmtahan dayandırıldı</h3>
+          <p class="text-gray-600 text-sm">İmtahanınız uğurla dayandırıldı. İstədiyiniz zaman davam edə bilərsiniz.</p>
+        </div>
+      </div>
+    `;
+    
+    // Add notification to document
+    document.body.appendChild(notification);
+    
+    // Remove notification after 5 seconds
+    setTimeout(() => {
+      notification.classList.add('fade-out');
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 500);
+    }, 5000);
+    
+    // Add fade-out animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
+      }
+      @keyframes fade-out {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-10px); }
+      }
+      .fade-out {
+        animation: fade-out 0.3s ease-in forwards;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+</script>
+</body>
+</html> 

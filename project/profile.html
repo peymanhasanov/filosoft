@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiloSoft | İstifadəçi Profili</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/js/common.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.orbit {
+animation: orbit 20s linear infinite;
+}
+@keyframes orbit {
+from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+}
+
+/* Özel scroll bar */
+::-webkit-scrollbar {
+width: 6px;
+height: 6px;
+}
+
+::-webkit-scrollbar-track {
+background: #f1f1f1;
+border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+background: #3B82F6;
+border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+background: #2563EB;
+}
+</style>
+</head>
+<body class="bg-gray-50">
+<nav class="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center">
+<img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16">
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<a href="index.html" class="text-gray-700 hover:text-primary">Əsas Səhifə</a>
+<a href="tests.html" class="text-gray-700 hover:text-primary">Onlayn Testlər</a>
+<a href="courses.html" class="text-gray-700 hover:text-primary">Onlayn Dərslər</a>
+<a href="haqqimizda.html" class="text-gray-700 hover:text-primary">Haqqımızda</a>
+<div id="profileLink">
+  <a href="profile.html" class="px-4 py-2 bg-primary text-white rounded-button transition-colors flex items-center">
+    <span class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2">
+      <i class="ri-user-fill text-primary text-lg"></i>
+    </span>
+    <span>Profil</span>
+  </a>
+</div>
+</div>
+<div class="md:hidden flex items-center">
+<button class="text-gray-700 hover:text-primary">
+<i class="ri-menu-line text-2xl"></i>
+</button>
+</div>
+</div>
+</div>
+</nav>
+
+<main class="pt-24 pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">İstifadəçi Profili</h1>
+        
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="w-full md:w-1/4">
+                <div class="bg-white rounded-xl shadow-sm p-4">
+                    <ul class="space-y-2">
+                        <li>
+                            <button data-section="profile-details" class="w-full text-left px-4 py-2 rounded-lg bg-primary text-white section-btn">
+                                <i class="ri-user-3-line mr-2"></i> Profil detalları
+                            </button>
+                        </li>
+                        <li>
+                            <button data-section="change-password" class="w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 section-btn">
+                                <i class="ri-lock-password-line mr-2"></i> Şifrəni dəyiş
+                            </button>
+                        </li>
+                        <li>
+                            <button data-section="contact-us" class="w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 section-btn">
+                                <i class="ri-mail-send-line mr-2"></i> Bizə yazın
+                            </button>
+                        </li>
+                        <li>
+                            <button data-section="privacy-policy" class="w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 section-btn">
+                                <i class="ri-shield-check-line mr-2"></i> Gizlilik siyasəti
+                            </button>
+                        </li>
+                        <li>
+                            <button data-section="terms-conditions" class="w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 section-btn">
+                                <i class="ri-file-list-3-line mr-2"></i> Məlumatlar və qaydalar
+                            </button>
+                        </li>
+                        <li>
+                            <button data-section="info-video" class="w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 section-btn">
+                                <i class="ri-video-line mr-2"></i> Məlumatlandırıcı video
+                            </button>
+                        </li>
+                        <li>
+                            <button data-section="history" class="w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 section-btn">
+                                <i class="ri-history-line mr-2"></i> Tarixçə
+                            </button>
+                        </li>
+                        <li>
+                            <button data-section="partners" class="w-full text-left px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 section-btn">
+                                <i class="ri-team-line mr-2"></i> Partnyorlar
+                            </button>
+                        </li>
+                        <li>
+                            <button id="logoutBtn" class="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-50">
+                                <i class="ri-logout-box-line mr-2"></i> Çıxış
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="w-full md:w-3/4">
+                <!-- Profile Details Section -->
+                <div id="profile-details" class="content-section bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-2xl font-semibold mb-6">Profil detalları</h2>
+        <div id="profileContainer" class="min-h-[400px]">
+                        <!-- Profile content will be loaded here by auth.js -->
+                    </div>
+                </div>
+                
+                <!-- Change Password Section -->
+                <div id="change-password" class="content-section bg-white rounded-xl shadow-sm p-6 hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Şifrəni dəyiş</h2>
+                    <form id="changePasswordForm" class="space-y-4">
+                        <div>
+                            <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-1">Hazırki şifrə</label>
+                            <input type="password" id="currentPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-1">Yeni şifrə</label>
+                            <input type="password" id="newPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Şifrəni təsdiqlə</label>
+                            <input type="password" id="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        </div>
+                        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">Şifrəni yenilə</button>
+                    </form>
+                </div>
+                
+                <!-- Contact Us Section -->
+                <div id="contact-us" class="content-section bg-white rounded-xl shadow-sm p-6 hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Bizə yazın</h2>
+                    <form id="contactForm" class="space-y-4">
+                        <div>
+                            <label for="contactSubject" class="block text-sm font-medium text-gray-700 mb-1">Mövzu</label>
+                            <input type="text" id="contactSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="contactMessage" class="block text-sm font-medium text-gray-700 mb-1">Mesaj</label>
+                            <textarea id="contactMessage" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary"></textarea>
+                        </div>
+                        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">Göndər</button>
+                    </form>
+                </div>
+                
+                <!-- Privacy Policy Section -->
+                <div id="privacy-policy" class="content-section bg-white rounded-xl shadow-sm p-6 hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Gizlilik siyasəti</h2>
+                    <div class="prose max-w-none">
+                        <p class="mb-4">FiloSoft platforması istifadəçilərin məlumatlarının qorunmasına böyük əhəmiyyət verir. Bu siyasət, şəxsi məlumatlarınızın necə toplandığını, istifadə edildiyini və qorunduğunu izah edir.</p>
+                        
+                        <h3 class="text-xl font-medium mt-6 mb-2">Məlumat toplama</h3>
+                        <p class="mb-4">Platformamızda qeydiyyatdan keçdiyiniz zaman adınız, e-mail ünvanınız və digər əlaqə məlumatlarınız kimi şəxsi məlumatlar toplanır. Bundan əlavə, platformada fəaliyyətinizlə bağlı məlumatlar, imtahan nəticələri və digər istifadə statistikaları da toplanır.</p>
+                        
+                        <h3 class="text-xl font-medium mt-6 mb-2">Məlumatların istifadəsi</h3>
+                        <p class="mb-4">Toplanmış məlumatlar xidmətlərimizi təkmilləşdirmək, istifadəçi təcrübəsini yaxşılaşdırmaq və platformadan istifadəni təhlil etmək üçün istifadə olunur.</p>
+                        
+                        <h3 class="text-xl font-medium mt-6 mb-2">Məlumat təhlükəsizliyi</h3>
+                        <p class="mb-4">İstifadəçilərimizin məlumatlarını qorumaq üçün müasir texnoloji və təşkilati tədbirlər tətbiq edirik. Bütün şəxsi məlumatlar şifrələnmiş şəkildə saxlanılır və icazəsiz girişdən qorunur.</p>
+                    </div>
+                </div>
+                
+                <!-- Terms and Conditions Section -->
+                <div id="terms-conditions" class="content-section bg-white rounded-xl shadow-sm p-6 hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Məlumatlar və qaydalar</h2>
+                    <div class="prose max-w-none">
+                        <p class="mb-4">FiloSoft platformasından istifadə edərkən aşağıdakı qaydalar və şərtlərə riayət etməlisiniz.</p>
+                        
+                        <h3 class="text-xl font-medium mt-6 mb-2">İstifadə qaydaları</h3>
+                        <ul class="list-disc pl-5 mb-4">
+                            <li>Platforma üzərindən təqdim edilən materiallar yalnız şəxsi istifadə üçündür.</li>
+                            <li>Platforma materiallarını kopyalamaq, yaymaq və ya kommersiya məqsədləri üçün istifadə etmək qadağandır.</li>
+                            <li>Digər istifadəçilərə qarşı təhqiramiz davranışlar qəbuledilməzdir.</li>
+                            <li>İstifadəçi hesabı yalnız bir şəxs tərəfindən istifadə edilməlidir.</li>
+                        </ul>
+                        
+                        <h3 class="text-xl font-medium mt-6 mb-2">Ödəniş qaydaları</h3>
+                        <p class="mb-4">İmtahan və kurslara qeydiyyat zamanı edilən ödənişlər qaytarılmır. Xüsusi hallarda müraciət üzrə ödənişin qaytarılması mümkündür.</p>
+                    </div>
+                </div>
+                
+                <!-- Informational Video Section -->
+                <div id="info-video" class="content-section bg-white rounded-xl shadow-sm p-6 hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Məlumatlandırıcı video</h2>
+                    <div class="aspect-w-16 aspect-h-9">
+                        <div class="video-container w-full h-auto mx-auto relative overflow-hidden rounded-xl shadow-xl bg-gradient-to-br from-blue-50 to-indigo-100 p-3" style="max-width: 800px;">
+                            <iframe src="assets/orbit-animation.html" class="w-full h-full object-cover rounded-lg" style="aspect-ratio: 16/9; border: none; background-color: white;"></iframe>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="text-xl font-medium mb-2">Platformadan necə istifadə etməli</h3>
+                        <p class="text-gray-700">Bu video platformanın əsas funksiyalarını və onlardan necə istifadə etməyi göstərir. İmtahanlara necə qeydiyyatdan keçəcəyinizi, testləri necə həll edəcəyinizi və nəticələri necə görə biləcəyinizi öyrənin.</p>
+                    </div>
+                </div>
+                
+                <!-- History Section -->
+                <div id="history" class="content-section bg-white rounded-xl shadow-sm p-6 hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Tarixçə</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xl font-medium mb-2">İmtahan tarixçəsi</h3>
+                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200">
+                                <div class="p-4 border-b border-gray-200">
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="font-medium">Vəkillik Testi</h4>
+                                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">85/100</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">01.05.2023 · 42/50 doğru cavab</p>
+                                </div>
+                                <div class="p-4 border-b border-gray-200">
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="font-medium">Məhkəmə Sınağı</h4>
+                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">78/100</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">24.04.2023 · 31/40 doğru cavab</p>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="font-medium">MIQ Hazırlıq</h4>
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">Qeydiyyatlı</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">05.05.2023-də qeydiyyatdan keçib</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-medium mb-2">Ödəniş tarixçəsi</h3>
+                            <div class="overflow-hidden bg-white rounded-lg border border-gray-200">
+                                <div class="p-4 border-b border-gray-200">
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="font-medium">Vəkillik Testi</h4>
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">20 AZN</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">01.05.2023 · Kart ilə ödəniş</p>
+                                </div>
+                                <div class="p-4 border-b border-gray-200">
+                                    <div class="flex justify-between items-center">
+                                        <h4 class="font-medium">Məhkəmə Sınağı</h4>
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">10 AZN</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">24.04.2023 · Kart ilə ödəniş</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Partners Section -->
+                <div id="partners" class="content-section bg-white rounded-xl shadow-sm p-6 hidden">
+                    <h2 class="text-2xl font-semibold mb-6">Partnyorlar</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <div class="flex items-center justify-center p-4 border border-gray-200 rounded-lg">
+                            <div class="text-center">
+                                <div class="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+                                    <i class="ri-building-4-line text-4xl text-gray-500"></i>
+                                </div>
+                                <h3 class="mt-3 font-medium">Ədliyyə Nazirliyi</h3>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center p-4 border border-gray-200 rounded-lg">
+                            <div class="text-center">
+                                <div class="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+                                    <i class="ri-government-line text-4xl text-gray-500"></i>
+                                </div>
+                                <h3 class="mt-3 font-medium">Vəkillər Kollegiyası</h3>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center p-4 border border-gray-200 rounded-lg">
+                            <div class="text-center">
+                                <div class="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+                                    <i class="ri-scales-3-line text-4xl text-gray-500"></i>
+                                </div>
+                                <h3 class="mt-3 font-medium">Məhkəmə-Hüquq Şurası</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-4 gap-8">
+    <div>
+    <img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16  mb-4">
+    <p class="text-gray-400">Rəqəmsal təhsil hər yerdə</p>
+    </div>
+    <div>
+    <h4 class="text-lg font-semibold mb-4">Sürətli əlçatanlıq</h4>
+    <ul class="space-y-2">
+    <li><a href="#" class="text-gray-400 hover:text-white">Əsas Səhifə</a></li>
+    <li><a href="#" class="text-gray-400 hover:text-white">Onlayn Testlər</a></li>
+    <li><a href="#" class="text-gray-400 hover:text-white">Onlayn Dərslər</a></li>
+    <li><a href="#" class="text-gray-400 hover:text-white">Haqqımızda</a></li>
+    </ul>
+    </div>
+    <div>
+    <h4 class="text-lg font-semibold mb-4">Əlaqə</h4>
+    <ul class="space-y-2">
+    <li class="text-gray-400">info@filosoft.az</li>
+    <li class="text-gray-400">+994 00 000 00 00</li>
+    <li class="text-gray-400">Azərbaycan, Baku</li>
+    </ul>
+    </div>
+    <div>
+    <h4 class="text-lg font-semibold mb-4">Sosial Media</h4>
+    <div class="flex space-x-4">
+    <a href="#" class="text-gray-400 hover:text-white">
+    <i class="ri-linkedin-fill text-2xl"></i>
+    </a>
+    <a href="#" class="text-gray-400 hover:text-white">
+    <i class="ri-facebook-fill text-2xl"></i>
+    </a>
+    <a href="#" class="text-gray-400 hover:text-white">
+    <i class="ri-instagram-fill text-2xl"></i>
+    </a>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+    <p>&copy; 2025 FiloSoft. Müəlliflik hüququ qorunur.</p>
+    </div>
+    </div>
+    </footer>
+    
+
+<script src="assets/js/auth.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Check if user is logged in
+        if (!isLoggedIn()) {
+            window.location.href = "auth.html";
+            return;
+        }
+        
+        // Render profile content
+        renderProfile('profileContainer');
+        
+        // Handle section navigation
+        const sectionBtns = document.querySelectorAll('.section-btn');
+        const contentSections = document.querySelectorAll('.content-section');
+        
+        sectionBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                sectionBtns.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('text-gray-700', 'hover:bg-gray-100');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('bg-primary', 'text-white');
+                this.classList.remove('text-gray-700', 'hover:bg-gray-100');
+                
+                // Hide all content sections
+                contentSections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show the selected content section
+                const sectionId = this.getAttribute('data-section');
+                document.getElementById(sectionId).classList.remove('hidden');
+            });
+        });
+        
+        // Handle logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            logout();
+        });
+        
+        // Handle change password form
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // In a real app, this would call an API to change the password
+                alert('Şifrə yeniləndi!');
+            });
+        }
+        
+        // Handle contact form
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // In a real app, this would send the message to server
+                alert('Mesajınız göndərildi!');
+                contactForm.reset();
+            });
+        }
+    });
+</script>
+</body>
+</html> 

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiloSoft | Onlayn Dərslər</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/common.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        /* Video koruma stilleri */
+        .video-container {
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.2);
+            background-color: #000;
+        }
+
+        .video-player {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+            z-index: 20;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            padding: 4px 10px;
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Özel kontroller */
+        .custom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 30px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-container:hover .custom-controls {
+            opacity: 1;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+            border-radius: 3px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.1s linear;
+        }
+
+        .progress-bar:hover .progress {
+            background: linear-gradient(90deg, #6366f1, #a78bfa);
+        }
+
+        .control-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            border-radius: 50%;
+        }
+
+        .control-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* Ders içeriği */
+        .lesson-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .lesson-section {
+            border-bottom: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+
+        .lesson-section:hover {
+            background-color: #f9fafb;
+        }
+
+        .lesson-section.active {
+            background-color: rgba(79, 70, 229, 0.05);
+            border-left: 3px solid #4f46e5;
+        }
+
+        .lesson-section:last-child {
+            border-bottom: none;
+        }
+        
+        /* Genel animasyonlar */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* Özel scroll bar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3730a3;
+        }
+        
+        /* Ders notları bölümü */
+        .notes-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .notes-container.open {
+            max-height: 500px;
+        }
+        
+        /* Öğrenme İlerleme Çubuğu */
+        .progress-circle {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+        
+        .progress-circle svg {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-circle circle {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+        }
+        
+        .progress-bg {
+            stroke: #e5e7eb;
+        }
+        
+        .progress-value {
+            stroke: #4f46e5;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        /* Notlar ve tartışma sekmesi */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        .tab-button {
+            position: relative;
+        }
+        
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: transparent;
+            transition: background-color 0.3s ease;
+        }
+        
+        .tab-button.active::after {
+            background: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="index.html">
+                        <img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16">
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-primary">Əsas Səhifə</a>
+                    <a href="tests.html" class="text-gray-700 hover:text-primary">Onlayn Testlər</a>
+                    <a href="courses.html" class="text-primary font-medium">Onlayn Dərslər</a>
+                    <a href="index.html#blog" class="text-gray-700 hover:text-primary">Haqqımızda</a>
+                    <div id="authLinks" class="flex space-x-2">
+                      <a href="auth.html" class="px-4 py-2 text-primary hover:text-blue-700 transition-colors">Daxil ol</a>
+                      <a href="auth.html" class="px-4 py-2 border border-primary text-primary rounded-md hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Qeydiyyatdan Keç</a>
+                    </div>
+                    <div id="profileLink" class="hidden">
+                      <a href="profile.html" class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                          <i class="ri-user-fill text-white text-lg"></i>
+                        </div>
+                        <span class="ml-2 text-gray-700">Profil</span>
+                      </a>
+                    </div>
+                    </div>
+                <div class="flex items-center space-x-2">
+                    <a href="courses.html" class="flex items-center text-gray-600 hover:text-primary px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300">
+                        <i class="ri-arrow-left-line mr-2"></i> Dərslərə Dön
+                    </a>
+                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300">
+                        <i class="ri-bookmark-line mr-1"></i> Yadda Saxla
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ana İçerik -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Video ve Ders Bilgileri Bölümü -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Video Bölümü -->
+                <div class="video-container animate-fade-in">
+                    <video id="videoPlayer" class="video-player" controlsList="nodownload">
+                        <source src="path/to/your/video.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="video-overlay"></div>
+                    <div class="watermark"><i class="ri-shield-check-line mr-1"></i> FiloSoft</div>
+                    <div class="custom-controls">
+                        <button class="control-button" id="playPauseBtn">
+                            <i class="ri-play-fill text-xl"></i>
+                        </button>
+                        <div class="progress-bar" id="progressBar">
+                            <div class="progress" id="progress"></div>
+                        </div>
+                        <button class="control-button" id="muteBtn">
+                            <i class="ri-volume-up-fill text-xl"></i>
+                        </button>
+                        <button class="control-button" id="fullscreenBtn">
+                            <i class="ri-fullscreen-fill text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ders Bilgileri -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold text-gray-800">Hüquq və Vəkillik Əsasları</h2>
+                        <div class="progress-circle">
+                            <svg width="60" height="60" viewBox="0 0 60 60">
+                                <circle class="progress-bg" cx="30" cy="30" r="25" />
+                                <circle class="progress-value" cx="30" cy="30" r="25" stroke-dasharray="157" stroke-dashoffset="78.5" />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-primary font-bold">50%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4 text-sm text-gray-500 mb-6">
+                        <span class="flex items-center">
+                            <i class="ri-time-line mr-1"></i> 4 saat 30 dəqiqə
+                        </span>
+                        <span class="flex items-center">
+                            <i class="ri-vidicon-line mr-1"></i> Modul 2/5
+                        </span>
+                        <span class="flex items-center">
+                            <i class="ri-user-line mr-1"></i> Rəşad Əliyev
+                        </span>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-6">
+                        Bu dərsdə vəkillik və hüquq sahəsinin təməl anlayışlarını, qanunvericilik prinsiplərini və məhkəmə sisteminin işləyişini öyrənəcəksiniz. 
+                        Vəkilliyin əsas səlahiyyətləri, məhkəmə proseslərinin aparılması və hüquqi sənədlərin hazırlanması üçün lazım olan bilik və bacarıqlar əldə edəcəksiniz.
+                    </p>
+                    
+                    <!-- Sekmeler -->
+                    <div class="border-b border-gray-200">
+                        <div class="flex space-x-8">
+                            <button class="tab-button active pb-3 text-primary font-medium" data-tab="notes">Dərs Qeydləri</button>
+                            <button class="tab-button pb-3 text-gray-500 hover:text-gray-700" data-tab="discussion">Müzakirə (2)</button>
+                            <button class="tab-button pb-3 text-gray-500 hover:text-gray-700" data-tab="resources">Resurslar</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sekme İçerikleri -->
+                    <div class="py-4">
+                        <!-- Ders Notları -->
+                        <div id="notes" class="tab-content active">
+                            <div class="space-y-4">
+                                <div class="p-4 bg-indigo-50 rounded-lg">
+                                    <h4 class="font-medium text-primary mb-2">Vacib Nöqtələr</h4>
+                                    <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                                        <li>Vəkilin müdafiə texnikalarını və strategiyalarını düzgün tətbiq edin</li>
+                                        <li>Məhkəmə qarşısında çıxış zamanı hüquqi arqumentlərin keyfiyyətinə xüsusi diqqət yetirin</li>
+                                        <li>Qanunvericilikdəki boşluqların düzgün istifadəsi üçün presedent hüququnu araşdırın</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <h4 class="font-medium text-gray-700 mb-2">Qeydləriniz</h4>
+                                    <textarea class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" rows="3" placeholder="Buraya qeydlərinizi əlavə edə bilərsiniz..."></textarea>
+                                    <button class="mt-2 bg-primary hover:bg-indigo-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-300">Yadda saxla</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tartışma -->
+                        <div id="discussion" class="tab-content">
+                            <div class="space-y-4">
+                                <div class="flex space-x-3">
+                                    <img src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg" alt="User" class="w-10 h-10 rounded-full">
+                                    <div class="flex-1">
+                                        <textarea class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" rows="2" placeholder="Sual verin və ya rəyinizi yazın..."></textarea>
+                                        <button class="mt-2 bg-primary hover:bg-indigo-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-300">Göndər</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-100 pt-4">
+                                    <div class="flex space-x-3">
+                                        <img src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg" alt="User" class="w-10 h-10 rounded-full">
+                                        <div>
+                                            <div class="flex items-center">
+                                                <h4 class="font-medium text-gray-800">Test User</h4>
+                                                <span class="ml-2 text-xs text-gray-500">2 saat önce</span>
+                                            </div>
+                                            <p class="text-gray-600 mt-1">Değişkenleri tanımlarken "let" ve "const" arasındaki farkı biraz daha açıklayabilir misiniz?</p>
+                                            <div class="mt-2 flex space-x-2">
+                                                <button class="text-xs text-gray-500 hover:text-primary">Yanıtla</button>
+                                                <button class="text-xs text-gray-500 hover:text-primary">Beğen (3)</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Kaynaklar -->
+                        <div id="resources" class="tab-content">
+                            <div class="space-y-3">
+                                <a href="#" class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-300">
+                                    <i class="ri-file-pdf-line text-red-500 text-xl mr-3"></i>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Dərs Təqdimatı</h4>
+                                        <p class="text-xs text-gray-500">PDF, 2.4 MB</p>
+                                    </div>
+                                </a>
+                                <a href="#" class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-300">
+                                    <i class="ri-code-box-line text-primary text-xl mr-3"></i>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Tapşırıqlar</h4>
+                                        <p class="text-xs text-gray-500">ZIP, 1.1 MB</p>
+                                    </div>
+                                </a>
+                                <a href="#" class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-300">
+                                    <i class="ri-link-m text-green-500 text-xl mr-3"></i>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Mənbələr</h4>
+                                        <p class="text-xs text-gray-500">Website</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ders İçeriği Listesi -->
+            <div class="lesson-content animate-fade-in" style="animation-delay: 0.3s;">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-1">Dərs Məzmunu</h3>
+                    <p class="text-sm text-gray-500">5 bölümdən 2 tamamlandı</p>
+                </div>
+                
+                <div class="max-h-[600px] overflow-y-auto">
+                    <div class="space-y-1 p-2">
+                        <div class="lesson-section rounded-lg hover:scale-[0.99] transition-transform">
+                            <div class="p-4 cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                            <i class="ri-check-line text-green-500"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-gray-700 font-medium">1. Hüquq nəzəriyyəsi</h4>
+                                            <p class="text-xs text-gray-500">Əsas hüquqi anlayışlar və prinsiplər</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm text-gray-500">45:30</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lesson-section rounded-lg hover:scale-[0.99] transition-transform active">
+                            <div class="p-4 cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                            <i class="ri-play-fill text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-primary font-medium">2. Məhkəmə sistemi</h4>
+                                            <p class="text-xs text-gray-500">Azərbaycan məhkəmə sisteminin strukturu</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm text-primary">38:15</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lesson-section rounded-lg hover:scale-[0.99] transition-transform">
+                            <div class="p-4 cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                            <i class="ri-lock-line text-gray-400"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-gray-700 font-medium">3. Vəkillik fəaliyyəti</h4>
+                                            <p class="text-xs text-gray-500">Vəkilin səlahiyyətləri və peşə etikası</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm text-gray-500">52:45</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lesson-section rounded-lg hover:scale-[0.99] transition-transform">
+                            <div class="p-4 cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                            <i class="ri-lock-line text-gray-400"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-gray-700 font-medium">4. Məhkəmə prosesləri</h4>
+                                            <p class="text-xs text-gray-500">Mülki və cinayət prosesləri</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm text-gray-500">42:20</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lesson-section rounded-lg hover:scale-[0.99] transition-transform">
+                            <div class="p-4 cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                            <i class="ri-lock-line text-gray-400"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-gray-700 font-medium">5. Hüquqi sənədləşmə</h4>
+                                            <p class="text-xs text-gray-500">İddia ərizələri və müqavilələrin tərtibatı</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm text-gray-500">48:10</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigasyon Butonları -->
+                <div class="p-5 border-t border-gray-200 flex justify-between">
+                    <button class="flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors duration-300">
+                        <i class="ri-arrow-left-s-line mr-1"></i> Əvvəlki
+                    </button>
+                    <button class="flex items-center justify-center px-4 py-2 bg-primary hover:bg-indigo-700 text-white rounded-lg transition-colors duration-300">
+                        Növbəti <i class="ri-arrow-right-s-line ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Video oynatıcı kontrolleri
+        const video = document.getElementById('videoPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+        
+        // Execute immediately to show profile link
+        document.getElementById('authLinks').classList.add('hidden');
+        document.getElementById('profileLink').classList.remove('hidden');
+        
+        // Get course parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const course = urlParams.get('course');
+        const section = urlParams.get('section');
+        
+        // Update page content based on course
+        function updateCourseContent() {
+            let courseName = "";
+            let courseInstructor = "";
+            let courseDuration = "";
+            let courseDescription = "";
+            
+            // Set course-specific content
+            switch(course) {
+                case 'vekillik':
+                    courseName = "Vəkillik Hüququ";
+                    courseInstructor = "Rəşad Əliyev";
+                    courseDuration = "6 saat";
+                    courseDescription = "Bu dərsdə vəkillik fəaliyyətinin əsasları, müdafiə texnikaları və məhkəmədə təmsil qaydaları haqqında ətraflı məlumat veriləcək. Vəkilliyin hüquqi və etik prinsipləri müzakirə olunacaq.";
+                    break;
+                case 'mehkeme':
+                    courseName = "Məhkəmə Prosedurları";
+                    courseInstructor = "Peyman";
+                    courseDuration = "8 saat";
+                    courseDescription = "Bu dərsdə məhkəmə sisteminin işləyişi, prosedurları və məhkəmə təcrübəsi haqqında praktiki məlumatlar veriləcək. Məhkəmə proseslərində iştirak qaydaları və praktiki nümunələr təqdim olunacaq.";
+                    break;
+                case 'vergi':
+                    courseName = "Vergi Hüququ";
+                    courseInstructor = "Elnur Həsənov";
+                    courseDuration = "5 saat";
+                    courseDescription = "Bu dərsdə Azərbaycan vergi sistemi, vergi öhdəlikləri və vergi orqanları ilə qarşılıqlı əlaqələr haqqında ətraflı məlumat veriləcək. Vergi qanunvericiliyinin əsas prinsipləri və tətbiqi qaydaları müzakirə olunacaq.";
+                    break;
+                case 'notariat':
+                    courseName = "Notariat Fəaliyyəti";
+                    courseInstructor = "Günel Qasımova";
+                    courseDuration = "4 saat";
+                    courseDescription = "Bu dərsdə notariat orqanlarının iş prinsipi, sənədləşmə qaydaları və notarial hərəkətlərin aparılması haqqında ətraflı məlumat veriləcək. Əqdlərin təsdiqi və notarial fəaliyyətin əsasları müzakirə olunacaq.";
+                    break;
+                case 'prokurorluq':
+                    courseName = "Prokurorluq Əsasları";
+                    courseInstructor = "Tural Məmmədov";
+                    courseDuration = "7 saat";
+                    courseDescription = "Bu dərsdə prokurorluğun funksiya və vəzifələri, ibtidai istintaq prosedurları və dövlət ittihamının müdafiəsi haqqında ətraflı məlumat veriləcək. Cinayət təqibinin həyata keçirilməsi qaydaları müzakirə olunacaq.";
+                    break;
+                case 'konstitusiya':
+                    courseName = "Konstitusiya Hüququ";
+                    courseInstructor = "Peyman";
+                    courseDuration = "6 saat";
+                    courseDescription = "Bu dərsdə Azərbaycan Konstitusiyası, konstitusiya quruluşu və vətəndaşların konstitusiya hüquqları haqqında ətraflı məlumat veriləcək. Konstitusiya normalarının tətbiqi və təfsiri müzakirə olunacaq.";
+                    break;
+                default:
+                    courseName = "Hüquq Dərsi";
+                    courseInstructor = "Mütəxəssis Müəllim";
+                    courseDuration = "5 saat";
+                    courseDescription = "Bu dərsdə hüququn əsas prinsipləri və müxtəlif hüquq sahələri haqqında ümumi məlumat veriləcək. Nəzəri biliklər və praktiki nümunələr təqdim olunacaq.";
+            }
+            
+            // Update page title and content
+            document.title = `FiloSoft | ${courseName}`;
+            document.querySelector('h2.text-2xl').textContent = courseName;
+            
+            // Update course details
+            const courseInfoElements = document.querySelectorAll('.flex.items-center.text-sm.text-gray-500.mb-6 span');
+            if (courseInfoElements.length >= 3) {
+                courseInfoElements[0].innerHTML = `<i class="ri-time-line mr-1"></i> ${courseDuration}`;
+                courseInfoElements[2].innerHTML = `<i class="ri-user-line mr-1"></i> ${courseInstructor}`;
+            }
+            
+            // Update course description
+            document.querySelector('p.text-gray-600.mb-6').textContent = courseDescription;
+            
+            // Update lesson content in sidebar based on course and section
+            updateLessonSidebar(courseName);
+        }
+        
+        // Update lesson sidebar content based on course and section
+        function updateLessonSidebar(courseName) {
+            // Update sidebar title
+            document.querySelector('.lesson-content .p-6 h3').textContent = `${courseName} - Dərs Məzmunu`;
+            
+            // Update sidebar based on section
+            if (section) {
+                // Get section info
+                const sectionInfo = {
+                    'section1': { name: 'Maddə 1-30', locked: false },
+                    'section2': { name: 'Maddə 31-70', locked: false },
+                    'section3': { name: 'Maddə 71-110', locked: false },
+                    'section4': { name: 'Maddə 111-158', locked: false }
+                };
+                
+                // Update sidebar title with section
+                document.querySelector('.lesson-content .p-6 h3').textContent = 
+                    `${courseName} - ${sectionInfo[section] ? sectionInfo[section].name : 'Dərs Məzmunu'}`;
+                
+                // Update lesson sections based on purchased section
+                const lessonSections = document.querySelectorAll('.lesson-section');
+                
+                // Adjust lesson sections based on purchased section
+                lessonSections.forEach((lessonSection, index) => {
+                    const iconDiv = lessonSection.querySelector('.w-8.h-8.rounded-full');
+                    const titleElement = lessonSection.querySelector('h4');
+                    
+                    // Set all sections to locked initially
+                    iconDiv.className = 'w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3';
+                    iconDiv.innerHTML = '<i class="ri-lock-line text-gray-400"></i>';
+                    
+                    // Set active section based on purchased section
+                    if (section === 'section1' && index < 1) {
+                        iconDiv.className = 'w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3';
+                        iconDiv.innerHTML = '<i class="ri-play-fill text-primary"></i>';
+                        lessonSection.classList.add('active');
+                        titleElement.className = 'text-primary font-medium';
+                    } else if (section === 'section2' && index >= 1 && index < 2) {
+                        iconDiv.className = 'w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3';
+                        iconDiv.innerHTML = '<i class="ri-play-fill text-primary"></i>';
+                        lessonSection.classList.add('active');
+                        titleElement.className = 'text-primary font-medium';
+                    } else if (section === 'section3' && index >= 2 && index < 3) {
+                        iconDiv.className = 'w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3';
+                        iconDiv.innerHTML = '<i class="ri-play-fill text-primary"></i>';
+                        lessonSection.classList.add('active');
+                        titleElement.className = 'text-primary font-medium';
+                    } else if (section === 'section4' && index >= 3 && index < 5) {
+                        iconDiv.className = 'w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3';
+                        iconDiv.innerHTML = '<i class="ri-play-fill text-primary"></i>';
+                        lessonSection.classList.add('active');
+                        titleElement.className = 'text-primary font-medium';
+                    }
+                });
+                
+                // Update completed sections count
+                const completedCount = section === 'section1' ? 1 : 
+                                       section === 'section2' ? 1 : 
+                                       section === 'section3' ? 1 : 
+                                       section === 'section4' ? 2 : 0;
+                
+                document.querySelector('.lesson-content .p-6 p').textContent = 
+                    `5 bölümdən ${completedCount} tamamlandı`;
+            }
+        }
+        
+        // Call function to update content when page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            updateCourseContent();
+            
+            // If there's a section parameter, show a purchase success notification
+            if (section) {
+                setTimeout(() => {
+                    showPurchaseSuccessNotification();
+                }, 1000);
+            }
+        });
+        
+        // Function to show purchase success notification
+        function showPurchaseSuccessNotification() {
+            // Get section info
+            const sectionInfo = {
+                'section1': { name: 'Maddə 1-30' },
+                'section2': { name: 'Maddə 31-70' },
+                'section3': { name: 'Maddə 71-110' },
+                'section4': { name: 'Maddə 111-158' }
+            };
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-24 right-4 bg-white p-4 rounded-lg shadow-lg z-50 max-w-md';
+            notification.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+            notification.style.borderLeft = '4px solid #4f46e5';
+            notification.style.animation = 'fadeIn 0.5s ease forwards';
+            notification.innerHTML = `
+                <div class="flex items-start">
+                    <div class="text-green-500 mr-3 mt-0.5">
+                        <i class="ri-checkbox-circle-fill text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900 mb-1">Satın alma tamamlandı</h3>
+                        <p class="text-gray-600 text-sm">${sectionInfo[section] ? sectionInfo[section].name : ''} bölümünə əlçatanlıq əldə etdiniz.</p>
+                    </div>
+                </div>
+            `;
+            
+            // Add notification to document
+            document.body.appendChild(notification);
+            
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(-10px)';
+                notification.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 5000);
+            
+            // Add animation style
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Video koruma önlemleri
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (
+                e.key === 'PrintScreen' ||
+                (e.ctrlKey && e.key === 'p') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'i') ||
+                e.key === 'F12'
+            ) {
+                e.preventDefault();
+            }
+        });
+
+        // Ekran yakalama tespiti
+        let hidden, visibilityChange;
+        if (typeof document.hidden !== "undefined") {
+            hidden = "hidden";
+            visibilityChange = "visibilitychange";
+        }
+
+        document.addEventListener(visibilityChange, () => {
+            if (document[hidden]) {
+                video.pause();
+            }
+        });
+
+        // Video kontrolleri
+        playPauseBtn.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+                playPauseBtn.innerHTML = '<i class="ri-pause-fill text-xl"></i>';
+            } else {
+                video.pause();
+                playPauseBtn.innerHTML = '<i class="ri-play-fill text-xl"></i>';
+            }
+        });
+
+        muteBtn.addEventListener('click', () => {
+            video.muted = !video.muted;
+            muteBtn.innerHTML = video.muted ? 
+                '<i class="ri-volume-mute-fill text-xl"></i>' : 
+                '<i class="ri-volume-up-fill text-xl"></i>';
+        });
+
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                video.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        // İlerleme çubuğu
+        video.addEventListener('timeupdate', () => {
+            const percentage = (video.currentTime / video.duration) * 100;
+            progress.style.width = `${percentage}%`;
+        });
+
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / progressBar.offsetWidth;
+            video.currentTime = pos * video.duration;
+        });
+
+        // Watermark oluşturma
+        function createDynamicWatermark() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            setInterval(() => {
+                const watermark = `FiloSoft - ${new Date().toLocaleTimeString()}`;
+                ctx.font = '20px Arial';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fillText(watermark, 20, canvas.height - 20);
+            }, 1000);
+        }
+
+        video.addEventListener('loadedmetadata', createDynamicWatermark);
+
+        // Ekran yakalama engelleme
+        setInterval(() => {
+            if (window.outerWidth - window.innerWidth > 100 || window.outerHeight - window.innerHeight > 200) {
+                video.pause();
+                alert('Ekran yakalama tespit edildi. Lütfen dersi normal şekilde izleyin.');
+            }
+        }, 1000);
+
+        // Sekmeler arası geçiş
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.getAttribute('data-tab');
+                
+                // Aktif sekmeyi değiştir
+                tabButtons.forEach(btn => btn.classList.remove('active', 'text-primary'));
+                button.classList.add('active', 'text-primary');
+                
+                // İçeriği göster/gizle
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === tabName) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // HLS.js ile video akışı (eğer gerekirse)
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            // hls.loadSource('path/to/your/video.m3u8');
+            // hls.attachMedia(video);
+        }
+    </script>
+    <script src="assets/js/auth.js"></script>
+</body>
+</html> 

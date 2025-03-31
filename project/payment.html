@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ödəniş | FiloSoft</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#3b82f6',
+          secondary: '#2563eb'
+        },
+        borderRadius: {
+          'button': '0.5rem'
+        }
+      }
+    }
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+  :root {
+    --font-sans: 'Montserrat', sans-serif;
+  }
+  body {
+    font-family: var(--font-sans);
+  }
+  .payment-card {
+    transition: all 0.3s ease;
+  }
+  .payment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  .card-input-element {
+    display: none;
+  }
+  .card-input-element:checked + .card-input {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px #3b82f6;
+  }
+  .card-input {
+    transition: all 0.3s ease;
+  }
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+  }
+  .loading-overlay.active {
+    display: flex;
+  }
+  .loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #3b82f6;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: rotation 1s linear infinite;
+  }
+  @keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .payment-success {
+    display: none;
+    animation: fadeIn 0.5s ease-out forwards;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .payment-success.active {
+    display: flex;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<nav class="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center">
+<a href="index.html">
+  <img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16">
+</a>
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<a href="index.html" class="text-gray-700 hover:text-primary">Əsas Səhifə</a>
+<a href="tests.html" class="text-primary font-medium">Onlayn Testlər</a>
+<a href="courses.html" class="text-gray-700 hover:text-primary">Onlayn Dərslər</a>
+<a href="index.html#blog" class="text-gray-700 hover:text-primary">Haqqımızda</a>
+<div id="authLinks" class="flex space-x-2">
+  <a href="auth.html" class="px-4 py-2 text-primary hover:text-blue-700 transition-colors">Daxil ol</a>
+  <a href="auth.html" class="px-4 py-2 border border-primary text-primary !rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Qeydiyyatdan Keç</a>
+</div>
+<div id="profileLink" class="hidden">
+  <a href="profile.html" class="px-4 py-2 text-primary hover:text-blue-700 transition-colors flex items-center">
+    <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center mr-2">
+      <i class="ri-user-fill text-white text-lg"></i>
+    </span>
+    <span>Profil</span>
+  </a>
+</div>
+</div>
+<div class="md:hidden flex items-center">
+<button class="text-gray-700 hover:text-primary">
+<i class="ri-menu-line text-2xl"></i>
+</button>
+</div>
+</div>
+</div>
+</nav>
+
+<main class="pt-20 pb-16">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- Order Summary -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Ödəniş</h1>
+    <div class="bg-white rounded-xl shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Ödəniş detalları</h2>
+      <div class="border-t border-b border-gray-200 py-4 mb-4">
+        <div class="flex justify-between mb-2">
+          <span class="text-gray-600" id="testTitle">Test:</span>
+          <span class="font-medium" id="testName"></span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span class="text-gray-600">Kateqoriya:</span>
+          <span class="font-medium" id="categoryName"></span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span class="text-gray-600">İmtahan növü:</span>
+          <span class="font-medium" id="examType"></span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span class="text-gray-600">Sual sayı:</span>
+          <span class="font-medium" id="questionCount"></span>
+        </div>
+      </div>
+      <div class="flex justify-between items-center text-lg">
+        <span class="font-medium">Ümumi məbləğ:</span>
+        <span class="font-bold text-2xl text-primary" id="totalPrice"></span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Payment Form -->
+  <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-6">Ödəniş üsulu</h2>
+    
+    <!-- Payment Method Selection -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <label class="cursor-pointer">
+        <input type="radio" name="paymentMethod" class="card-input-element" value="card" checked>
+        <div class="card-input border border-gray-200 rounded-lg p-4 flex items-center">
+          <div class="flex-shrink-0 mr-4">
+            <i class="ri-bank-card-fill text-3xl text-primary"></i>
+          </div>
+          <div>
+            <h3 class="font-medium text-gray-900">Bank kartı</h3>
+            <p class="text-gray-600 text-sm">Visa, MasterCard və s.</p>
+          </div>
+        </div>
+      </label>
+      
+      <label class="cursor-pointer">
+        <input type="radio" name="paymentMethod" class="card-input-element" value="wallet">
+        <div class="card-input border border-gray-200 rounded-lg p-4 flex items-center">
+          <div class="flex-shrink-0 mr-4">
+            <i class="ri-wallet-3-fill text-3xl text-primary"></i>
+          </div>
+          <div>
+            <h3 class="font-medium text-gray-900">FiloSoft balansı</h3>
+            <p class="text-gray-600 text-sm">Balansınızdan ödəniş</p>
+          </div>
+        </div>
+      </label>
+    </div>
+    
+    <!-- Card Payment Form -->
+    <div id="cardPaymentForm">
+      <div class="grid grid-cols-1 gap-5 mb-6">
+        <div>
+          <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-1">Kart nömrəsi</label>
+          <div class="relative">
+            <input type="text" id="cardNumber" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" placeholder="0000 0000 0000 0000">
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+              <i class="ri-bank-card-line text-gray-400 text-xl"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <label for="cardholderName" class="block text-sm font-medium text-gray-700 mb-1">Kart sahibinin adı</label>
+          <input type="text" id="cardholderName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" placeholder="AD SOYAD">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="expiry" class="block text-sm font-medium text-gray-700 mb-1">İstifadə müddəti</label>
+            <input type="text" id="expiry" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" placeholder="MM/YY">
+          </div>
+          
+          <div>
+            <label for="cvv" class="block text-sm font-medium text-gray-700 mb-1">CVV/CVC</label>
+            <div class="relative">
+              <input type="text" id="cvv" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" placeholder="123">
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                <i class="ri-question-line text-gray-400 text-xl cursor-help" title="3-digit security code on the back of your card"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Wallet Payment Form -->
+    <div id="walletPaymentForm" class="hidden">
+      <div class="p-4 bg-blue-50 rounded-lg mb-6">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <i class="ri-information-line text-xl text-primary mt-0.5"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-gray-700">Balansınızdan <span id="walletPrice" class="font-semibold"></span> məbləğində ödəniş ediləcək.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex items-center mb-6">
+      <input id="terms" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+      <label for="terms" class="ml-2 block text-sm text-gray-700">
+        <a href="#" class="text-primary hover:text-secondary">Şərtlər və Qaydalar</a> ilə razıyam
+      </label>
+    </div>
+    
+    <button id="payButton" class="w-full py-3 px-4 bg-primary text-white font-medium rounded-lg hover:bg-secondary transition-colors flex justify-center items-center">
+      <i class="ri-secure-payment-line mr-2 text-lg"></i>
+      <span id="payButtonText">Ödəniş et</span>
+    </button>
+  </div>
+  
+  <div class="text-center text-gray-600 text-sm">
+    <p>Bütün ödənişlər <i class="ri-lock-line text-primary"></i> təhlükəsizdir və Payriff vasitəsilə həyata keçirilir.</p>
+    <div class="flex justify-center mt-2 space-x-4 items-center">
+      <img src="https://cdn-icons-png.flaticon.com/128/196/196578.png" alt="Visa" class="h-8 opacity-75">
+      <img src="https://cdn-icons-png.flaticon.com/128/196/196561.png" alt="MasterCard" class="h-8 opacity-75">
+      <img src="https://cdn-icons-png.flaticon.com/128/196/196539.png" alt="American Express" class="h-8 opacity-75">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Apple_Pay_logo.svg/1200px-Apple_Pay_logo.svg.png" alt="Apple Pay" style="height: 24px; width: auto;">
+      <img src="https://cdn-icons-png.flaticon.com/128/6124/6124998.png" alt="Google Pay" class="h-8 opacity-75">
+    </div>
+    <div class="mt-4 flex justify-center items-center">
+      <div class="flex items-center justify-center px-3 py-1.5 border border-blue-200 rounded-md bg-gradient-to-r from-blue-50 to-white shadow-sm">
+        <i class="ri-lock-line text-blue-700 mr-1"></i>
+        <span class="font-bold text-blue-800 text-xs mr-1">PCI DSS</span>
+        <span class="text-xs text-gray-700 font-medium">COMPLIANT</span>
+        <i class="ri-shield-check-line text-green-600 ml-1"></i>
+      </div>
+      <span class="mx-2 text-gray-400">|</span>
+      <p class="text-xs font-medium">Proceed security by PCI DSS</p>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="text-center">
+    <div class="loader mx-auto mb-4"></div>
+    <p class="text-gray-700 font-medium">Ödəniş həyata keçirilir...</p>
+    <p class="text-gray-500 text-sm mt-2">Xahiş edirik səhifəni bağlamayın</p>
+  </div>
+</div>
+
+<!-- Payment Success Message -->
+<div id="paymentSuccess" class="payment-success fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-90 backdrop-blur-sm hidden">
+  <div class="max-w-md w-full mx-auto bg-white rounded-xl shadow-lg p-8 text-center transform">
+    <div class="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6">
+      <i class="ri-check-line text-4xl text-green-500"></i>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-900 mb-2">Ödəniş uğurla tamamlandı!</h2>
+    <p class="text-gray-600 mb-6">İmtahana başlamaq üçün aşağıdakı düyməni sıxın.</p>
+    <a href="#" id="startExamButton" class="inline-block w-full py-3 px-4 bg-primary text-white font-medium rounded-lg hover:bg-secondary transition-colors">
+      İmtahana başla
+    </a>
+  </div>
+</div>
+
+<!-- Add Payriff branding at the very bottom -->
+<div class="text-center border-t border-gray-200 pt-6 pb-4 mt-8">
+  <div class="flex justify-center items-center">
+    <span class="text-gray-500 text-sm">Powered by</span>
+    <span class="ml-2 text-lg font-bold text-primary">Payriff</span>
+    <span class="mx-2 text-gray-400">|</span>
+    <a href="#" class="text-primary hover:underline text-sm">contact</a>
+  </div>
+</div>
+</main>
+
+<footer class="bg-gray-900 text-white py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid md:grid-cols-4 gap-8">
+<div>
+<img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16 mb-4">
+<p class="text-gray-400">Rəqəmsal təhsil hər yerdə</p>
+</div>
+<div>
+<h4 class="text-lg font-semibold mb-4">Sürətli əlçatanlıq</h4>
+<ul class="space-y-2">
+<li><a href="index.html" class="text-gray-400 hover:text-white">Əsas Səhifə</a></li>
+<li><a href="tests.html" class="text-gray-400 hover:text-white">OnlaynTestlər</a></li>
+<li><a href="courses.html" class="text-gray-400 hover:text-white">Onlayn Dərslər</a></li>
+<li><a href="haqqimizda.html" class="text-gray-400 hover:text-white">Haqqımızda</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-lg font-semibold mb-4">Əlaqə</h4>
+<ul class="space-y-2">
+<li class="text-gray-400">info@filosoft.az</li>
+<li class="text-gray-400">+994 00 000 00 00</li>
+<li class="text-gray-400">Azərbaycan, Baku</li>
+</ul>
+</div>
+<div>
+<h4 class="text-lg font-semibold mb-4">Sosial Media</h4>
+<div class="flex space-x-4">
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-linkedin-fill text-2xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-facebook-fill text-2xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-instagram-fill text-2xl"></i>
+</a>
+</div>
+</div>
+</div>
+</div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Get URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const course = urlParams.get('course');
+  const section = urlParams.get('section');
+  const sectionName = urlParams.get('sectionName');
+  const price = urlParams.get('price');
+  
+  // Maps for display names
+  const courseData = {
+    vekillik: "Vəkillik Dərsi",
+    mehkeme: "Məhkəmə Prosedurları Dərsi",
+    prokuror: "Prokurorluq Dərsi",
+    notarius: "Notarius Dərsi",
+    edliyye: "Ədliyyə Dərsi",
+    vergi: "Vergi Dərsi",
+    notariat: "Notariat Dərsi",
+    konstitusiya: "Konstitusiya Dərsi"
+  };
+  
+  // Fill the order details
+  document.getElementById('testTitle').textContent = "Dərs:";
+  document.getElementById('testName').textContent = courseData[course] || 'Onlayn Dərs';
+  document.getElementById('categoryName').textContent = sectionName || '';
+  document.getElementById('examType').textContent = "30 dəqiqə";
+  document.getElementById('questionCount').parentElement.style.display = 'none'; // Hide the questions count row
+  document.getElementById('totalPrice').textContent = `${price || '10'} AZN`;
+  document.getElementById('walletPrice').textContent = `${price || '10'} AZN`;
+  
+  // Update the pay button text based on price
+  document.getElementById('payButtonText').textContent = `${price || '10'} AZN ödə`;
+  
+  // Handle payment method selection
+  const cardForm = document.getElementById('cardPaymentForm');
+  const walletForm = document.getElementById('walletPaymentForm');
+  
+  document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
+    input.addEventListener('change', function() {
+      if (this.value === 'card') {
+        cardForm.classList.remove('hidden');
+        walletForm.classList.add('hidden');
+      } else {
+        cardForm.classList.add('hidden');
+        walletForm.classList.remove('hidden');
+      }
+    });
+  });
+  
+  // Format card number input
+  const cardNumberInput = document.getElementById('cardNumber');
+  cardNumberInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 16) value = value.slice(0, 16);
+    
+    // Add spaces after every 4 digits
+    const formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+    e.target.value = formattedValue;
+  });
+  
+  // Format expiry date input
+  const expiryInput = document.getElementById('expiry');
+  expiryInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 4) value = value.slice(0, 4);
+    
+    if (value.length > 2) {
+      const month = value.slice(0, 2);
+      const year = value.slice(2);
+      e.target.value = `${month}/${year}`;
+    } else {
+      e.target.value = value;
+    }
+  });
+  
+  // Limit CVV to 3-4 digits
+  const cvvInput = document.getElementById('cvv');
+  cvvInput.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 4) value = value.slice(0, 4);
+    e.target.value = value;
+  });
+  
+  // Submit payment
+  const payButton = document.getElementById('payButton');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const paymentSuccess = document.getElementById('paymentSuccess');
+  const termsCheckbox = document.getElementById('terms');
+  
+  payButton.addEventListener('click', function() {
+    if (!termsCheckbox.checked) {
+      alert('Xahiş edirik şərtlər və qaydalarla razılaşın');
+      return;
+    }
+    
+    // Show loading overlay
+    loadingOverlay.classList.add('active');
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      loadingOverlay.classList.remove('active');
+      
+      // Show success message
+      paymentSuccess.classList.remove('hidden');
+      paymentSuccess.classList.add('active');
+      
+      // Setup start button link based on product type (course or test)
+      const startExamButton = document.getElementById('startExamButton');
+      
+      if (course) {
+        // If it's a course, redirect to lesson page
+        startExamButton.textContent = "Dərsə başla";
+        startExamButton.href = `lesson.html?course=${course}&section=${section}`;
+      } else if (urlParams.get('test')) {
+        // If it's a test, redirect to test-start page
+        const test = urlParams.get('test');
+        const category = urlParams.get('category');
+        const examType = urlParams.get('examType');
+        const questions = urlParams.get('questions');
+        
+        startExamButton.textContent = "İmtahana başla";
+        startExamButton.href = `test-start.html?test=${test}&category=${encodeURIComponent(category)}&examType=${examType}&questions=${questions}`;
+      }
+    }, 2000);
+  });
+  
+  // Check if user is logged in
+  if (typeof isLoggedIn === 'function') {
+    if (isLoggedIn()) {
+      document.getElementById('authLinks').classList.add('hidden');
+      document.getElementById('profileLink').classList.remove('hidden');
+    } else {
+      document.getElementById('authLinks').classList.remove('hidden');
+      document.getElementById('profileLink').classList.add('hidden');
+    }
+  }
+});
+</script>
+<script src="assets/js/auth.js"></script>
+</body>
+</html> 

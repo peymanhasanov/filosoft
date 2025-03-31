@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiloSoft | Test Platforması</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/js/common.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .option-label {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+        }
+        .option-label:hover {
+            border-color: #3B82F6;
+            background-color: #EFF6FF;
+        }
+        .option-radio:checked + .option-label {
+            border-color: #3B82F6;
+            background-color: #EFF6FF;
+        }
+        .option-radio {
+            position: absolute;
+            opacity: 0;
+        }
+        .progress-bar-container {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #3B82F6;
+            transition: width 0.3s ease;
+        }
+        .timer {
+            font-family: monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .result-box {
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            font-weight: 600;
+            min-width: 150px;
+        }
+        
+        /* Windows 11 style navigation popup */
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        #questionNavPopup {
+            animation: popIn 0.2s ease-out forwards;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.85);
+        }
+        
+        .question-tile {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: rgba(249, 250, 251, 0.9);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+            backdrop-filter: blur(2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+        
+        .question-tile:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .question-tile.current {
+            background: rgba(59, 130, 246, 0.95);
+            color: white;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+            border-color: rgba(37, 99, 235, 0.5);
+        }
+        
+        .question-tile.answered {
+            background: rgba(220, 252, 231, 0.9);
+            color: #047857;
+            border-color: rgba(167, 243, 208, 0.8);
+        }
+        
+        .question-tile.unanswered {
+            background: rgba(249, 250, 251, 0.9);
+            color: #4B5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html">
+                        <img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16">
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-primary">Əsas Səhifə</a>
+                    <a href="tests.html" class="text-primary font-medium">Onlayn Testlər</a>
+                    <a href="courses.html" class="text-gray-700 hover:text-primary">Onlayn Dərslər</a>
+                    <a href="haqqimizda.html" class="text-gray-700 hover:text-primary">Haqqımızda</a>
+                    <div id="profileLink">
+                        <a href="profile.html" class="px-4 py-2 bg-primary text-white rounded-button transition-colors flex items-center">
+                            <span class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2">
+                                <i class="ri-user-fill text-primary text-lg"></i>
+                            </span>
+                            <span>Profil</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-700 hover:text-primary">
+                        <i class="ri-menu-line text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Test Header -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h1 id="testTitle" class="text-2xl font-bold text-gray-900">Vəkillik Testi - Azərbaycan Respublikasının Konstitusiyası</h1>
+                        <p id="testDescription" class="text-gray-600">Konstitusiya üzrə biliklərinizi yoxlayın</p>
+                    </div>
+                    <div class="flex items-center">
+                        <!-- Pause Button -->
+                        <button id="pauseTestBtn" class="mr-4 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 shadow-sm flex items-center justify-center transition-all duration-200 hover:shadow-md group">
+                            <i class="ri-pause-circle-line text-primary text-xl group-hover:scale-110 transition-transform"></i>
+                        </button>
+                        <div class="text-right">
+                            <div class="timer text-lg mb-2" id="timer">01:30:00</div>
+                            <div class="text-sm text-gray-600">Qalan vaxt</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex space-x-4">
+                        <div class="text-sm">
+                            <span class="font-semibold" id="currentQuestionNum">1</span> / 
+                            <span id="totalQuestions">5</span> sual
+                        </div>
+                        <div class="text-sm flex items-center">
+                            <div class="w-3 h-3 bg-green-500 rounded-full mr-1"></div>
+                            <span id="answeredCount">0</span> cavablanıb
+                        </div>
+                        <div class="text-sm flex items-center">
+                            <div class="w-3 h-3 bg-gray-300 rounded-full mr-1"></div>
+                            <span id="unansweredCount">5</span> cavablanmayıb
+                        </div>
+                    </div>
+                    <button id="finishTestBtn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors hidden">
+                        Testi tamamla
+                    </button>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+                
+                <!-- Windows 11 Style Question Navigation Icon -->
+                <div class="mt-4 flex justify-end">
+                    <button id="questionNavIcon" class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 shadow-sm flex items-center justify-center transition-all duration-200 hover:shadow-md group">
+                        <i class="ri-apps-2-fill text-primary text-xl group-hover:scale-110 transition-transform"></i>
+                    </button>
+                    
+                    <!-- Question Navigation Grid Popup (Hidden by default) -->
+                    <div id="questionNavPopup" class="hidden absolute mt-12 right-6 bg-white bg-opacity-95 rounded-xl shadow-xl border border-gray-200 p-5 z-50">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-3">Suala keçid:</h3>
+                        <div class="grid grid-cols-4 gap-3" id="questionNavGrid">
+                            <!-- Question tiles will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Questions Container -->
+            <div id="questionsContainer" class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <!-- Questions will be dynamically inserted here -->
+            </div>
+
+            <!-- Test Navigation -->
+            <div class="flex justify-between mt-6">
+                <button id="prevBtn" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors hidden">
+                    <i class="ri-arrow-left-line mr-2"></i> Əvvəlki
+                </button>
+                <button id="nextBtn" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors ml-auto">
+                    Növbəti <i class="ri-arrow-right-line ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Test Results (Initially Hidden) -->
+            <div id="testResults" class="bg-white rounded-xl shadow-sm p-6 mb-6 hidden">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Test Nəticələri</h2>
+                
+                <div class="flex justify-center space-x-6 mb-8">
+                    <div class="result-box bg-green-100 text-green-800">
+                        <div class="text-3xl" id="correctCount">0</div>
+                        <div class="text-sm mt-2">Düzgün</div>
+                    </div>
+                    <div class="result-box bg-red-100 text-red-800">
+                        <div class="text-3xl" id="incorrectCount">0</div>
+                        <div class="text-sm mt-2">Səhv</div>
+                    </div>
+                    <div class="result-box bg-gray-100 text-gray-800">
+                        <div class="text-3xl" id="skippedCount">0</div>
+                        <div class="text-sm mt-2">Boş</div>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-8">
+                    <div class="text-2xl font-bold mb-2">
+                        Ümumi Bal: <span id="totalScore">0</span>/100
+                    </div>
+                    <div class="text-lg text-gray-600">
+                        Doğru cavab sayı: <span id="correctAnswers">0</span>/<span id="totalQuestionsResult">5</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center space-x-4">
+                    <button id="reviewTestBtn" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                        Cavabları nəzərdən keçir
+                    </button>
+                    <button id="exportResultsBtn" class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        Nəticələri export et
+                    </button>
+                </div>
+            </div>
+
+            <!-- Questions Review (Initially Hidden) -->
+            <div id="questionsReview" class="bg-white rounded-xl shadow-sm p-6 mb-6 hidden">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Cavabların Təhlili</h2>
+                <div id="reviewContainer">
+                    <!-- Review content will be inserted here -->
+                </div>
+                <div class="mt-6 text-center">
+                    <button id="backToResultsBtn" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                        Nəticələrə qayıt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Pause Test Confirmation Modal -->
+    <div id="pauseModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full m-4 animate-pop-in">
+            <div class="text-center mb-6">
+                <i class="ri-time-line text-primary text-4xl mb-3"></i>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Testi dayandırmaq istəyirsiniz?</h3>
+                <p class="text-gray-600">Testi dayandıraraq sonra davam edə bilərsiniz. Vaxt dayandırılacaq.</p>
+            </div>
+            <div class="flex space-x-3">
+                <button id="cancelPauseBtn" class="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    Xeyr, davam et
+                </button>
+                <button id="confirmPauseBtn" class="flex-1 py-3 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    Bəli, dayandır
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test data
+        const questions = [
+            {
+                id: 1,
+                text: "Azərbaycan Respublikasının Konstitusiyasına əsasən Azərbaycan xalqı öz suveren hüququnu bilavasitə hansı səsvermə yolu ilə həyata keçirir?",
+                options: [
+                    { id: "A", text: "Ümumi" },
+                    { id: "B", text: "Bərabər" },
+                    { id: "C", text: "Birbaşa" },
+                    { id: "D", text: "Ümumxalq səsverməsi" }
+                ],
+                correctAnswer: "D",
+                userAnswer: null
+            },
+            {
+                id: 2,
+                text: "Azərbaycan Respublikasının Konstitusiyasına əsasən Azərbaycan xalqı öz suveren hüququnu bilavasitə hansı seçki hüquqları əsasında seçilmiş nümayəndələri vasitəsi ilə həyata keçirir?",
+                options: [
+                    { id: "A", text: "Sərbəst, gizli və şəxsi seçki hüququ əsasında" },
+                    { id: "B", text: "Ümumi və birbaşa seçki hüququ əsasında" },
+                    { id: "C", text: "Ümumi, bərabər və birbaşa seçki hüququ əsasında" },
+                    { id: "D", text: "Ümumi, sərbəst, bərabər və birbaşa seçki hüququ əsasında" }
+                ],
+                correctAnswer: "C",
+                userAnswer: null
+            },
+            {
+                id: 3,
+                text: "Azərbaycan Respublikasının Konstitusiyasına əsasən kimlərin xalqı təmsil etmək, xalqın adından danışmaq və xalqın adından müraciət etmək hüququ vardır?",
+                options: [
+                    { id: "A", text: "Dövlət orqanlarında işləyən vəzifəli şəxslərin" },
+                    { id: "B", text: "Seçkili orqanlarda işləyən şəxslərin" },
+                    { id: "C", text: "Xalqın seçdiyi səlahiyyətli nümayəndələrin" },
+                    { id: "D", text: "Xüsusi səlahiyyət əsasında xalqı təmsil edən şəxslərin" }
+                ],
+                correctAnswer: "C",
+                userAnswer: null
+            },
+            {
+                id: 4,
+                text: "Azərbaycan Respublikasının Konstitusiyasına əsasən Azərbaycan Respublikası kimlərin ümumi və bölünməz vətənidir?",
+                options: [
+                    { id: "A", text: "Bütün Azərbaycan Respublikası xalqının" },
+                    { id: "B", text: "Hər kəsin" },
+                    { id: "C", text: "Bütün Azərbaycan Respublikası vətəndaşlarının" },
+                    { id: "D", text: "Azərbaycan Respublikasında yaşayan bütün şəxslərin" }
+                ],
+                correctAnswer: "C",
+                userAnswer: null
+            },
+            {
+                id: 5,
+                text: "Azərbaycan Respublikasının Konstitusiyasına əsasən xalqa qarşı ən ağır cinayətdir:",
+                options: [
+                    { id: "A", text: "Dövlət sirrlərinin yayılması" },
+                    { id: "B", text: "Dövlət sərhədlərinin pozulması" },
+                    { id: "C", text: "Dövlət çevrilişinə cəhd və qiyam" },
+                    { id: "D", text: "Hakimiyyətin mənimsənilməsi" }
+                ],
+                correctAnswer: "D",
+                userAnswer: null
+            }
+        ];
+
+        // DOM Elements
+        const questionsContainer = document.getElementById('questionsContainer');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const progressBar = document.getElementById('progressBar');
+        const currentQuestionNum = document.getElementById('currentQuestionNum');
+        const answeredCount = document.getElementById('answeredCount');
+        const unansweredCount = document.getElementById('unansweredCount');
+        const finishTestBtn = document.getElementById('finishTestBtn');
+        const testResults = document.getElementById('testResults');
+        const correctCount = document.getElementById('correctCount');
+        const incorrectCount = document.getElementById('incorrectCount');
+        const skippedCount = document.getElementById('skippedCount');
+        const totalScore = document.getElementById('totalScore');
+        const correctAnswers = document.getElementById('correctAnswers');
+        const totalQuestionsResult = document.getElementById('totalQuestionsResult');
+        const reviewTestBtn = document.getElementById('reviewTestBtn');
+        const exportResultsBtn = document.getElementById('exportResultsBtn');
+        const questionsReview = document.getElementById('questionsReview');
+        const reviewContainer = document.getElementById('reviewContainer');
+        const backToResultsBtn = document.getElementById('backToResultsBtn');
+        const timerDisplay = document.getElementById('timer');
+        const questionNavIcon = document.getElementById('questionNavIcon');
+        const questionNavPopup = document.getElementById('questionNavPopup');
+        const questionNavGrid = document.getElementById('questionNavGrid');
+        const pauseTestBtn = document.getElementById('pauseTestBtn');
+        const pauseModal = document.getElementById('pauseModal');
+        const cancelPauseBtn = document.getElementById('cancelPauseBtn');
+        const confirmPauseBtn = document.getElementById('confirmPauseBtn');
+
+        // Variables
+        let currentQuestionIndex = 0;
+        let timeLeft = 90 * 60; // 90 minutes in seconds
+        let timerInterval; // To store timer interval
+        let testType, testCategory, examType; // Test parameters
+
+        // Initialize the test
+        function initTest() {
+            // Get URL parameters for test info
+            const urlParams = new URLSearchParams(window.location.search);
+            testType = urlParams.get('test') || 'vekillik';
+            testCategory = urlParams.get('category') || 'Konstitusiya';
+            examType = urlParams.get('examType') || 'full';
+            
+            // Update test title and description with the parameters
+            document.getElementById('testTitle').textContent = `${testType} Testi - ${testCategory}`;
+            
+            // Set time based on exam type
+            if (examType === 'short') {
+                timeLeft = 30 * 60; // 30 minutes for short exam
+                document.getElementById('timer').textContent = "00:30:00";
+            } else {
+                timeLeft = 90 * 60; // 90 minutes for full exam
+                document.getElementById('timer').textContent = "01:30:00";
+            }
+            
+            // Update question count if provided in URL
+            const questionCount = urlParams.get('questions');
+            if (questionCount) {
+                document.getElementById('totalQuestions').textContent = questionCount;
+                document.getElementById('unansweredCount').textContent = questionCount;
+                
+                // Here you would also fetch the actual questions from server based on count
+                // For now, we're using the static questions array for demo
+            }
+            
+            // Check if there's a saved test in progress
+            checkForSavedTest();
+            
+            renderCurrentQuestion();
+            updateCounters();
+            createQuestionNavigationButtons();
+            startTimer();
+
+            // Add event listeners
+            nextBtn.addEventListener('click', nextQuestion);
+            prevBtn.addEventListener('click', prevQuestion);
+            finishTestBtn.addEventListener('click', finishTest);
+            reviewTestBtn.addEventListener('click', reviewTest);
+            backToResultsBtn.addEventListener('click', backToResults);
+            exportResultsBtn.addEventListener('click', exportResults);
+            questionNavIcon.addEventListener('click', toggleQuestionNavPopup);
+            pauseTestBtn.addEventListener('click', showPauseModal);
+            cancelPauseBtn.addEventListener('click', hidePauseModal);
+            confirmPauseBtn.addEventListener('click', pauseTest);
+        }
+        
+        // Check for saved test in localStorage
+        function checkForSavedTest() {
+            const savedTest = localStorage.getItem('pausedTest');
+            
+            if (savedTest) {
+                try {
+                    const testData = JSON.parse(savedTest);
+                    
+                    // If URL parameters match the saved test, restore it
+                    if (testData.testType === testType && 
+                        testData.testCategory === testCategory && 
+                        testData.examType === examType) {
+                        
+                        // Restore test state
+                        currentQuestionIndex = testData.currentQuestionIndex;
+                        timeLeft = testData.timeLeft;
+                        
+                        // Restore user answers
+                        testData.questions.forEach((savedQuestion, index) => {
+                            if (index < questions.length) {
+                                questions[index].userAnswer = savedQuestion.userAnswer;
+                            }
+                        });
+                        
+                        alert('Davam edən imtahanınız bərpa edildi!');
+                    }
+                } catch (error) {
+                    console.error('Error restoring saved test:', error);
+                    localStorage.removeItem('pausedTest');
+                }
+            }
+        }
+        
+        // Show pause confirmation modal
+        function showPauseModal() {
+            pauseModal.classList.remove('hidden');
+        }
+        
+        // Hide pause confirmation modal
+        function hidePauseModal() {
+            pauseModal.classList.add('hidden');
+        }
+        
+        // Pause the test and save state
+        function pauseTest() {
+            // Stop the timer
+            clearInterval(timerInterval);
+            
+            // Create an object with all the test state
+            const testState = {
+                testType: testType,
+                testCategory: testCategory,
+                examType: examType,
+                timeLeft: timeLeft,
+                currentQuestionIndex: currentQuestionIndex,
+                questions: questions.map(q => ({
+                    id: q.id,
+                    userAnswer: q.userAnswer
+                })),
+                timestamp: new Date().getTime()
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('pausedTest', JSON.stringify(testState));
+            
+            // Redirect to tests page
+            window.location.href = 'tests.html?paused=true';
+        }
+
+        // Create question navigation buttons
+        function createQuestionNavigationButtons() {
+            questionNavGrid.innerHTML = '';
+            
+            for (let i = 0; i < questions.length; i++) {
+                const tile = document.createElement('div');
+                tile.textContent = i + 1;
+                tile.className = 'question-tile';
+                
+                // Add appropriate styling
+                if (i === currentQuestionIndex) {
+                    tile.classList.add('current');
+                } else if (questions[i].userAnswer !== null) {
+                    tile.classList.add('answered');
+                } else {
+                    tile.classList.add('unanswered');
+                }
+                
+                // Add click event
+                tile.addEventListener('click', () => {
+                    navigateToQuestion(i);
+                    toggleQuestionNavPopup(); // Close popup after selection
+                });
+                
+                questionNavGrid.appendChild(tile);
+            }
+        }
+        
+        // Navigate to a specific question
+        function navigateToQuestion(index) {
+            if (index >= 0 && index < questions.length) {
+                currentQuestionIndex = index;
+                renderCurrentQuestion();
+                updateQuestionNavigationButtons();
+            }
+        }
+        
+        // Update the navigation buttons to reflect current state
+        function updateQuestionNavigationButtons() {
+            const tiles = questionNavGrid.querySelectorAll('.question-tile');
+            
+            tiles.forEach((tile, index) => {
+                // Reset all classes
+                tile.className = 'question-tile';
+                
+                if (index === currentQuestionIndex) {
+                    tile.classList.add('current');
+                } else if (questions[index].userAnswer !== null) {
+                    tile.classList.add('answered');
+                } else {
+                    tile.classList.add('unanswered');
+                }
+            });
+        }
+
+        // Render the current question
+        function renderCurrentQuestion() {
+            const question = questions[currentQuestionIndex];
+            
+            // Update progress indicators
+            currentQuestionNum.textContent = currentQuestionIndex + 1;
+            progressBar.style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+            
+            // Show/hide navigation buttons
+            prevBtn.classList.toggle('hidden', currentQuestionIndex === 0);
+            nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Testi tamamla' : 'Növbəti';
+            
+            // If it's the last question, show the finish button instead of next
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.classList.add('hidden');
+                finishTestBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                finishTestBtn.classList.add('hidden');
+            }
+            
+            // Create the question HTML
+            let questionHTML = `
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4">Sual ${question.id}: ${question.text}</h2>
+                    <div class="space-y-3">
+            `;
+            
+            // Add options
+            question.options.forEach(option => {
+                const isChecked = question.userAnswer === option.id ? 'checked' : '';
+                questionHTML += `
+                    <div class="relative">
+                        <input type="radio" name="question${question.id}" id="option${question.id}${option.id}" 
+                               class="option-radio" value="${option.id}" ${isChecked} data-question="${question.id}">
+                        <label for="option${question.id}${option.id}" class="option-label block p-4 rounded-lg pl-12 relative">
+                            <span class="absolute left-4 top-4 flex items-center justify-center w-6 h-6 border border-gray-400 rounded-full">
+                                ${option.id}
+                            </span>
+                            ${option.text}
+                        </label>
+                    </div>
+                `;
+            });
+            
+            questionHTML += `
+                    </div>
+                </div>
+            `;
+            
+            questionsContainer.innerHTML = questionHTML;
+            
+            // Add event listeners to radio buttons
+            document.querySelectorAll('.option-radio').forEach(radio => {
+                radio.addEventListener('change', handleAnswerSelection);
+            });
+        }
+
+        // Handle answer selection
+        function handleAnswerSelection(e) {
+            const questionId = parseInt(e.target.getAttribute('data-question'));
+            const selectedOption = e.target.value;
+            
+            // Find the question and update the user's answer
+            const question = questions.find(q => q.id === questionId);
+            question.userAnswer = selectedOption;
+            
+            // Update counters
+            updateCounters();
+            
+            // Update question navigation buttons to show answered status
+            updateQuestionNavigationButtons();
+        }
+
+        // Update answer counters
+        function updateCounters() {
+            const answered = questions.filter(q => q.userAnswer !== null).length;
+            const unanswered = questions.length - answered;
+            
+            answeredCount.textContent = answered;
+            unansweredCount.textContent = unanswered;
+        }
+
+        // Navigate to the next question
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateQuestionNavigationButtons();
+            }
+        }
+
+        // Navigate to the previous question
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateQuestionNavigationButtons();
+            }
+        }
+
+        // Format time as HH:MM:SS
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // Start the timer
+        function startTimer() {
+            timerDisplay.textContent = formatTime(timeLeft);
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = formatTime(timeLeft);
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishTest();
+                }
+            }, 1000);
+        }
+
+        // Finish the test and show results
+        function finishTest() {
+            // Stop the timer
+            clearInterval(timerInterval);
+            
+            // Clear any saved test
+            localStorage.removeItem('pausedTest');
+            
+            // Calculate results
+            const correct = questions.filter(q => q.userAnswer === q.correctAnswer).length;
+            const incorrect = questions.filter(q => q.userAnswer !== null && q.userAnswer !== q.correctAnswer).length;
+            const skipped = questions.filter(q => q.userAnswer === null).length;
+            const score = Math.round((correct / questions.length) * 100);
+            
+            // Update result elements
+            correctCount.textContent = correct;
+            incorrectCount.textContent = incorrect;
+            skippedCount.textContent = skipped;
+            totalScore.textContent = score;
+            correctAnswers.textContent = correct;
+            totalQuestionsResult.textContent = questions.length;
+            
+            // Hide questions and show results
+            questionsContainer.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            prevBtn.classList.add('hidden');
+            finishTestBtn.classList.add('hidden');
+            testResults.classList.remove('hidden');
+        }
+
+        // Review the test questions and answers
+        function reviewTest() {
+            testResults.classList.add('hidden');
+            questionsReview.classList.remove('hidden');
+            
+            let reviewHTML = '';
+            
+            questions.forEach(question => {
+                const isCorrect = question.userAnswer === question.correctAnswer;
+                const isSkipped = question.userAnswer === null;
+                
+                let statusClass = '';
+                let statusText = '';
+                
+                if (isSkipped) {
+                    statusClass = 'bg-gray-100 border-gray-300';
+                    statusText = 'Cavablanmayıb';
+                } else if (isCorrect) {
+                    statusClass = 'bg-green-100 border-green-300';
+                    statusText = 'Düzgün';
+                } else {
+                    statusClass = 'bg-red-100 border-red-300';
+                    statusText = 'Səhv';
+                }
+                
+                reviewHTML += `
+                    <div class="mb-8 p-4 rounded-lg ${statusClass} border">
+                        <div class="flex justify-between mb-3">
+                            <h3 class="font-semibold">Sual ${question.id}</h3>
+                            <span class="text-sm font-medium">${statusText}</span>
+                        </div>
+                        <p class="mb-4">${question.text}</p>
+                        <div class="space-y-2">
+                `;
+                
+                question.options.forEach(option => {
+                    let optionClass = '';
+                    
+                    if (option.id === question.correctAnswer) {
+                        optionClass = 'bg-green-100 border-green-500';
+                    } else if (option.id === question.userAnswer && option.id !== question.correctAnswer) {
+                        optionClass = 'bg-red-100 border-red-500';
+                    }
+                    
+                    reviewHTML += `
+                        <div class="p-3 rounded-lg ${optionClass} border">
+                            <span class="font-medium mr-2">${option.id}:</span> ${option.text}
+                            ${option.id === question.correctAnswer ? ' <span class="text-green-600 text-sm font-medium">(Düzgün cavab)</span>' : ''}
+                        </div>
+                    `;
+                });
+                
+                reviewHTML += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            reviewContainer.innerHTML = reviewHTML;
+        }
+
+        // Go back to the results page
+        function backToResults() {
+            questionsReview.classList.add('hidden');
+            testResults.classList.remove('hidden');
+        }
+
+        // Export the results as PDF
+        function exportResults() {
+            const { jsPDF } = window.jspdf;
+            
+            // Create a containing element for the export content
+            const exportContainer = document.createElement('div');
+            exportContainer.className = 'export-container';
+            exportContainer.style.width = '595px'; // A4 width
+            exportContainer.style.padding = '40px';
+            exportContainer.style.backgroundColor = 'white';
+            exportContainer.style.fontFamily = 'Arial, sans-serif';
+            
+            // Add test information
+            exportContainer.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="font-size: 24px; margin-bottom: 10px;">Test Nəticələri</h1>
+                    <p>Vəkillik Testi - Azərbaycan Respublikasının Konstitusiyası</p>
+                    <p>Tarix: ${new Date().toLocaleDateString()}</p>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <div style="text-align: center; padding: 15px; background-color: #DCFCE7; border-radius: 8px; width: 30%;">
+                        <div style="font-size: 24px; font-weight: bold;">${correctCount.textContent}</div>
+                        <div style="margin-top: 5px;">Düzgün</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background-color: #FEE2E2; border-radius: 8px; width: 30%;">
+                        <div style="font-size: 24px; font-weight: bold;">${incorrectCount.textContent}</div>
+                        <div style="margin-top: 5px;">Səhv</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background-color: #F3F4F6; border-radius: 8px; width: 30%;">
+                        <div style="font-size: 24px; font-weight: bold;">${skippedCount.textContent}</div>
+                        <div style="margin-top: 5px;">Boş</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 22px; font-weight: bold; margin-bottom: 10px;">
+                        Ümumi Bal: ${totalScore.textContent}/100
+                    </div>
+                    <div>
+                        Doğru cavab sayı: ${correctAnswers.textContent}/${totalQuestionsResult.textContent}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h2 style="font-size: 18px; margin-bottom: 10px;">Cavabların Müqayisəsi</h2>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <thead>
+                            <tr style="background-color: #F3F4F6;">
+                                <th style="padding: 8px; text-align: left; border: 1px solid #E5E7EB;">№</th>
+                                <th style="padding: 8px; text-align: left; border: 1px solid #E5E7EB;">Siz</th>
+                                <th style="padding: 8px; text-align: left; border: 1px solid #E5E7EB;">Düzgün</th>
+                                <th style="padding: 8px; text-align: left; border: 1px solid #E5E7EB;">Nəticə</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${questions.map(question => {
+                                const isCorrect = question.userAnswer === question.correctAnswer;
+                                const isSkipped = question.userAnswer === null;
+                                let statusText = '';
+                                let statusStyle = '';
+                                
+                                if (isSkipped) {
+                                    statusText = 'Boş';
+                                    statusStyle = 'color: #6B7280;';
+                                } else if (isCorrect) {
+                                    statusText = 'Düzgün';
+                                    statusStyle = 'color: #059669; font-weight: bold;';
+                                } else {
+                                    statusText = 'Səhv';
+                                    statusStyle = 'color: #DC2626; font-weight: bold;';
+                                }
+                                
+                                return `
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #E5E7EB;">${question.id}</td>
+                                        <td style="padding: 8px; border: 1px solid #E5E7EB;">${isSkipped ? '-' : question.userAnswer}</td>
+                                        <td style="padding: 8px; border: 1px solid #E5E7EB;">${question.correctAnswer}</td>
+                                        <td style="padding: 8px; border: 1px solid #E5E7EB; ${statusStyle}">${statusText}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; color: #6B7280; font-size: 14px;">
+                    <p>FiloSoft İmtahan Platforması</p>
+                    <p>© ${new Date().getFullYear()} Bütün hüquqlar qorunur</p>
+                </div>
+            `;
+            
+            // Add the container to the document temporarily
+            document.body.appendChild(exportContainer);
+            
+            // Generate PDF
+            html2canvas(exportContainer, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'pt', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                const imgY = 30;
+                
+                pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                pdf.save('test-neticeleri.pdf');
+                
+                // Remove the temporary container
+                document.body.removeChild(exportContainer);
+            });
+        }
+
+        // Toggle the question navigation popup
+        function toggleQuestionNavPopup() {
+            questionNavPopup.classList.toggle('hidden');
+            
+            // Add event listener to close popup when clicking outside
+            if (!questionNavPopup.classList.contains('hidden')) {
+                setTimeout(() => {
+                    document.addEventListener('click', closePopupOnClickOutside);
+                }, 10);
+            } else {
+                document.removeEventListener('click', closePopupOnClickOutside);
+            }
+        }
+        
+        // Close popup when clicking outside
+        function closePopupOnClickOutside(event) {
+            if (!questionNavPopup.contains(event.target) && event.target !== questionNavIcon) {
+                questionNavPopup.classList.add('hidden');
+                document.removeEventListener('click', closePopupOnClickOutside);
+            }
+        }
+
+        // Initialize the test when the page loads
+        document.addEventListener('DOMContentLoaded', initTest);
+
+        // Add keyframe animation for modal
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pop-in {
+                0% { transform: scale(0.9); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+            .animate-pop-in {
+                animation: pop-in 0.3s ease-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

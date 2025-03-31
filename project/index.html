@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiloSoft | Onlayn test və dərslər platforması</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<script src="assets/js/common.js"></script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.orbit {
+animation: orbit 20s linear infinite;
+}
+@keyframes orbit {
+from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+}
+.modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.5);
+z-index: 1000;
+}
+.modal.active {
+display: flex;
+animation: fadeIn 0.4s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { background: rgba(0, 0, 0, 0); backdrop-filter: blur(0px); }
+  to { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); }
+}
+@keyframes fadeOut {
+  from { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); }
+  to { background: rgba(0, 0, 0, 0); backdrop-filter: blur(0px); }
+}
+.modal.closing {
+  animation: fadeOut 0.4s ease-out forwards;
+}
+.modal-content {
+transform: translateY(50px);
+opacity: 0;
+transition: all 0.3s ease-out;
+}
+.modal.active .modal-content {
+transform: translateY(0);
+opacity: 1;
+animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes modalSlideIn {
+  from { transform: translateY(50px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes modalSlideOut {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to { transform: translateY(50px) scale(0.95); opacity: 0; }
+}
+.modal.closing .modal-content {
+  animation: modalSlideOut 0.4s ease-out forwards;
+}
+.form-input {
+transition: all 0.3s ease;
+}
+.form-input:focus {
+transform: scale(1.02);
+box-shadow: 0 10px 25px -10px rgba(59, 130, 246, 0.3);
+}
+.login-btn {
+position: relative;
+overflow: hidden;
+}
+.login-btn::after {
+content: '';
+position: absolute;
+top: 50%;
+left: 50%;
+width: 0;
+height: 0;
+background: rgba(255,255,255,0.2);
+border-radius: 50%;
+transform: translate(-50%, -50%);
+transition: width 0.6s ease-out, height 0.6s ease-out;
+}
+.login-btn:active::after {
+width: 200%;
+height: 200%;
+}
+/* Tab animations */
+.tab-container {
+  position: relative;
+}
+.tab-indicator {
+  position: absolute;
+  bottom: -2px;
+  height: 2px;
+  background-color: #3B82F6;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.login-tab-btn, .register-tab-btn {
+  position: relative;
+  transition: all 0.3s ease;
+}
+/* Form transition animations */
+.form-slide-left {
+  animation: slideLeft 0.4s ease-out forwards;
+}
+.form-slide-right {
+  animation: slideRight 0.4s ease-out forwards;
+}
+@keyframes slideLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-30px); opacity: 0; }
+}
+@keyframes slideRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(30px); opacity: 0; }
+}
+@keyframes slideInLeft {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideInRight {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.form-slide-in-left {
+  animation: slideInLeft 0.4s ease-out forwards;
+}
+.form-slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+/* Button animations */
+.btn-animate-hover {
+  transition: all 0.3s ease;
+}
+.btn-animate-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px -10px rgba(30, 64, 175, 0.5);
+}
+/* Success animation */
+@keyframes checkmark {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.success-checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: #10B981;
+  border-radius: 50%;
+  margin: 0 auto;
+  transform: scale(0);
+}
+.success-checkmark.animate {
+  animation: checkmark 0.5s ease-in-out forwards;
+}
+.success-checkmark i {
+  color: white;
+  font-size: 30px;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.success-message {
+  opacity: 0;
+}
+.success-message.animate {
+  animation: fadeInUp 0.5s ease-in-out forwards;
+  animation-delay: 0.2s;
+}
+.video-container {
+  animation: fadeIn 0.8s ease-out forwards;
+  position: relative;
+}
+.video-container::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, #3B82F6, #1E40AF, #3B82F6);
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(8px);
+}
+.courses-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.courses-slider, .lessons-slider {
+    display: flex;
+    gap: 2rem;
+    width: fit-content;
+}
+
+.course-card {
+    min-width: 320px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Test kartları için sola kayma animasyonu */
+.courses-slider {
+    animation: slideLeft 30s linear infinite;
+}
+
+/* Ders kartları için sağa kayma animasyonu */
+.lessons-slider {
+    animation: slideRight 30s linear infinite;
+}
+
+@keyframes slideLeft {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-100% / 2));
+    }
+}
+
+@keyframes slideRight {
+    0% {
+        transform: translateX(calc(-100% / 2));
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.courses-slider:hover, .lessons-slider:hover {
+    animation-play-state: paused;
+}
+</style>
+</head>
+<body class="bg-white min-h-screen">
+<nav class="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center">
+<img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16">
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<a href="#" class="text-gray-700 hover:text-primary">Əsas Səhifə</a>
+<a href="tests.html" class="text-gray-700 hover:text-primary">Onlayn Testlər</a>
+<a href="courses.html" class="text-gray-700 hover:text-primary">Onlayn Dərslər</a>
+<a href="haqqimizda.html" class="text-gray-700 hover:text-primary">Haqqımızda</a>
+<div id="authLinks" class="flex space-x-2">
+  <a href="auth.html" class="px-4 py-2 text-primary hover:text-blue-700 transition-colors">Daxil ol</a>
+  <a href="auth.html" class="px-4 py-2 border border-primary text-primary !rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Qeydiyyatdan Keç</a>
+</div>
+<div id="profileLink" class="hidden">
+  <a href="profile.html" class="px-4 py-2 text-primary hover:text-blue-700 transition-colors flex items-center">
+    <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center mr-2">
+      <i class="ri-user-fill text-white text-lg"></i>
+    </span>
+    <span>Profil</span>
+  </a>
+</div>
+</div>
+<div class="md:hidden flex items-center">
+<button class="text-gray-700 hover:text-primary">
+<i class="ri-menu-line text-2xl"></i>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-16">
+<section class="relative bg-gradient-to-r from-primary/5 to-primary/10 overflow-hidden">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+<div class="grid md:grid-cols-2 gap-12 items-center">
+<div>
+<h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+FiloSoft ilə onlayn test və dərslərlə özünüzü təkmilləşdirin
+</h1>
+<p class="text-lg text-gray-600 mb-8">
+FiloSoft ilə müxtəlif mövzularda özünüzü inkişaf etdirin
+</p>
+<div class="flex space-x-4">
+<button class="px-8 py-3 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+BAŞLAYAQ
+</button>
+<button class="px-8 py-3 border border-primary text-primary !rounded-button hover:bg-primary hover:text-white transition-colors whitespace-nowrap redirect-to-auth">
+Daha çox
+</button>
+</div>
+</div>
+<div class="relative">
+<div class="video-container w-full h-auto mx-auto relative overflow-hidden rounded-xl shadow-xl bg-gradient-to-br from-blue-50 to-indigo-100 p-3" style="max-width: 600px;">
+  <iframe src="assets/orbit-animation.html" class="w-full h-full object-cover rounded-lg" style="aspect-ratio: 1/1; border: none; background-color: white;"></iframe>
+</div>
+</div>
+</div>
+</section>
+<section id="tests" class="py-24 bg-white">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<h2 class="text-3xl font-bold text-center mb-16">Onlayn Testlərimiz</h2>
+<div class="courses-container">
+<div class="courses-slider">
+    <!-- İlk set kartlar -->
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden">
+    <img src="assets/vekillik.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Test">
+    <div class="p-6">
+    <h3 class="text-xl font-semibold mb-2">Vəkillik Testi</h3>
+    <p class="text-gray-600 mb-4">Hakimlik Hazırlığı</p>
+    <div class="flex justify-between items-center">
+    <span class="text-primary font-semibold">10 AZN</span>
+    <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+    Testə daxil ol
+    </button>
+    </div>
+    </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden">
+    <img src="assets/mehkeme.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Test">
+    <div class="p-6">
+    <h3 class="text-xl font-semibold mb-2">Hakimlik Testi</h3>
+    <p class="text-gray-600 mb-4">Məhkəmə Hazırlığı</p>
+    <div class="flex justify-between items-center">
+    <span class="text-primary font-semibold">10 AZN</span>
+    <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+    Testə daxil ol
+    </button>
+    </div>
+    </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden">
+    <img src="assets/prokuror.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Test">
+    <div class="p-6">
+    <h3 class="text-xl font-semibold mb-2">Prokurorluq Testi</h3>
+    <p class="text-gray-600 mb-4">Prokurorluq Hazırlığı</p>
+    <div class="flex justify-between items-center">
+    <span class="text-primary font-semibold">10 AZN</span>
+    <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+    Testə daxil ol
+    </button>
+    </div>
+    </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden">
+    <img src="assets/notarius.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Test">
+    <div class="p-6">
+    <h3 class="text-xl font-semibold mb-2">Notarius Testi</h3>
+    <p class="text-gray-600 mb-4">Notarius Hazırlığı</p>
+    <div class="flex justify-between items-center">
+    <span class="text-primary font-semibold">10 AZN</span>
+    <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+    Testə daxil ol
+    </button>
+    </div>
+    </div>
+    </div>
+
+    <!-- İkinci set kartlar (kopya) -->
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden">
+    <img src="assets/edliyye.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Test">
+    <div class="p-6">
+    <h3 class="text-xl font-semibold mb-2">Ədliyyə Testi</h3>
+    <p class="text-gray-600 mb-4">Ədliyyə Hazırlığı</p>
+    <div class="flex justify-between items-center">
+    <span class="text-primary font-semibold">10 AZN</span>
+    <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+    Testə daxil ol
+    </button>
+    </div>
+    </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden">
+    <img src="assets/vergi.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Test">
+    <div class="p-6">
+    <h3 class="text-xl font-semibold mb-2">Vergi Testi</h3>
+    <p class="text-gray-600 mb-4">Vergi Hazırlığı</p>
+    <div class="flex justify-between items-center">
+    <span class="text-primary font-semibold">10 AZN</span>
+    <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+    Testə daxil ol
+    </button>
+    </div>
+    </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden">
+    <img src="assets/gomruk.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Test">
+    <div class="p-6">
+    <h3 class="text-xl font-semibold mb-2">Gömrük Testi</h3>
+    <p class="text-gray-600 mb-4">Gömrük Hazırlığı</p>
+    <div class="flex justify-between items-center">
+    <span class="text-primary font-semibold">10 AZN</span>
+    <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+    Testə daxil ol
+    </button>
+    </div>
+    </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden">
+    <img src="assets/gerb.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Test">
+    <div class="p-6">
+    <h3 class="text-xl font-semibold mb-2">Dövlət Qulluğu Testi</h3>
+    <p class="text-gray-600 mb-4">Dövlət Qulluğu Hazırlığı</p>
+    <div class="flex justify-between items-center">
+    <span class="text-primary font-semibold">10 AZN</span>
+    <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap redirect-to-auth">
+    Testə daxil ol
+    </button>
+    </div>
+    </div>
+    </div>
+</div>
+</div>
+</div>
+</section>
+<section id="lessons" class="py-24 bg-gradient-to-r from-primary/10 to-primary/20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center mb-12">
+    <h2 class="text-3xl font-bold text-center mb-4">Onlayn Derslərimiz</h2>
+    <p class="text-gray-600 max-w-3xl mx-auto">Hüquq sahələri üzrə peşəkar müəllimlərimiz tərəfindən hazırlanmış yüksək keyfiyyətli MP4 videodərslər ilə təcrübənizi artırın</p>
+</div>
+
+<div class="courses-container">
+<div class="lessons-slider">
+    <!-- İlk set kartlar -->
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden group">
+        <div class="relative">
+            <img src="assets/vekillik.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Kurs">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
+                MP4 Video
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-md">
+                5 saat 30 dəqiqə
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">Vəkillik Kursu</h3>
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">İrəli səviyyə</span>
+            </div>
+            <p class="text-gray-600 mb-4">Vəkillik imtahanına hazırlıq üçün tam videokurs</p>
+            <div class="flex justify-between items-center">
+                <span class="text-primary font-semibold">10 AZN</span>
+                <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap flex items-center redirect-to-auth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Dərsə bax
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden group">
+        <div class="relative">
+            <img src="assets/mehkeme.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Kurs">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
+                MP4 Video
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-md">
+                7 saat 15 dəqiqə
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">Hakimlik Kursu</h3>
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">İrəli səviyyə</span>
+            </div>
+            <p class="text-gray-600 mb-4">Hakimlik imtahanına hazırlıq üçün tam videokurs</p>
+            <div class="flex justify-between items-center">
+                <span class="text-primary font-semibold">10 AZN</span>
+                <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap flex items-center redirect-to-auth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Dərsə bax
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden group">
+        <div class="relative">
+            <img src="assets/prokuror.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Kurs">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
+                MP4 Video
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-md">
+                6 saat 45 dəqiqə
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">Prokurorluq Kursu</h3>
+                <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Orta səviyyə</span>
+            </div>
+            <p class="text-gray-600 mb-4">Prokurorluq imtahanına hazırlıq üçün tam videokurs</p>
+            <div class="flex justify-between items-center">
+                <span class="text-primary font-semibold">10 AZN</span>
+                <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap flex items-center redirect-to-auth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Dərsə bax
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden group">
+        <div class="relative">
+            <img src="assets/notarius.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Kurs">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
+                MP4 Video
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-md">
+                4 saat 20 dəqiqə
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">Notarius Kursu</h3>
+                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Başlanğıc</span>
+            </div>
+            <p class="text-gray-600 mb-4">Notarius imtahanına hazırlıq üçün tam videokurs</p>
+            <div class="flex justify-between items-center">
+                <span class="text-primary font-semibold">10 AZN</span>
+                <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap flex items-center redirect-to-auth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Dərsə bax
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- İkinci set kartlar (kopya) -->
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden group">
+        <div class="relative">
+            <img src="assets/edliyye.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Kurs">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
+                MP4 Video
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-md">
+                8 saat 10 dəqiqə
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">Ədliyyə Kursu</h3>
+                <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Orta səviyyə</span>
+            </div>
+            <p class="text-gray-600 mb-4">Ədliyyə imtahanına hazırlıq üçün tam videokurs</p>
+            <div class="flex justify-between items-center">
+                <span class="text-primary font-semibold">10 AZN</span>
+                <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap flex items-center redirect-to-auth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Dərsə bax
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden group">
+        <div class="relative">
+            <img src="assets/vergi.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Kurs">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
+                MP4 Video
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-md">
+                5 saat 40 dəqiqə
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">Vergi Kursu</h3>
+                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Başlanğıc</span>
+            </div>
+            <p class="text-gray-600 mb-4">Vergi hüququ üzrə ətraflı videokurs</p>   
+            <div class="flex justify-between items-center">
+                <span class="text-primary font-semibold">10 AZN</span>
+                <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap flex items-center redirect-to-auth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Dərsə bax
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden group">
+        <div class="relative">
+            <img src="assets/gomruk.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Kurs">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
+                MP4 Video
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-md">
+                6 saat 25 dəqiqə
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">Gömrük Kursu</h3>
+                <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Orta səviyyə</span>
+            </div>
+            <p class="text-gray-600 mb-4">Gömrük qanunvericiliyi üzrə ətraflı videokurs</p>
+            <div class="flex justify-between items-center">
+                <span class="text-primary font-semibold">10 AZN</span>
+                <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap flex items-center redirect-to-auth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Dərsə bax
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="course-card bg-white rounded-lg shadow-lg overflow-hidden group">
+        <div class="relative">
+            <img src="assets/gerb.png" class="w-full h-48 object-contain bg-gradient-to-br from-blue-50 to-indigo-100" alt="Kurs">
+            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
+                MP4 Video
+            </div>
+            <div class="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded-md">
+                7 saat 50 dəqiqə
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">Dövlət Qulluğu Kursu</h3>
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">İrəli səviyyə</span>
+            </div>
+            <p class="text-gray-600 mb-4">Dövlət qulluğuna hazırlıq üçün ətraflı videokurs</p>
+            <div class="flex justify-between items-center">
+                <span class="text-primary font-semibold">10 AZN</span>
+                <button class="px-4 py-2 bg-primary text-white !rounded-button hover:bg-secondary transition-colors whitespace-nowrap flex items-center redirect-to-auth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Dərsə bax
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="mt-12 text-center">
+    <a href="auth.html" class="inline-block px-8 py-3 bg-primary text-white !rounded-button hover:bg-secondary transition-colors shadow-lg flex items-center mx-auto w-fit">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        Bütün videodərsləri kəşf edin
+    </a>
+</div>
+</div>
+</section>
+<section class="py-24 bg-gradient-to-r from-primary/5 to-primary/10">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<h2 class="text-3xl font-bold text-center mb-16">Niyə FiloSoft?</h2>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="bg-white p-8 rounded-lg shadow-lg">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+<i class="ri-user-star-line text-2xl text-primary"></i>
+</div>
+<h3 class="text-xl font-semibold mb-4">Xüsusi Müəllimlər</h3>
+<p class="text-gray-600">Sahəsinin peşəkarlarından dərs alın</p>
+</div>
+<div class="bg-white p-8 rounded-lg shadow-lg">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+<i class="ri-book-open-line text-2xl text-primary"></i>
+</div>
+<h3 class="text-xl font-semibold mb-4">Yenilənmiş Mövzular</h3>
+<p class="text-gray-600">Ən son yeniliklərlə tanış olun</p>
+</div>
+<div class="bg-white p-8 rounded-lg shadow-lg">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+<i class="ri-device-line text-2xl text-primary"></i>
+</div>
+<h3 class="text-xl font-semibold mb-4">Əsnək öyrənmə</h3>
+<p class="text-gray-600">İstədiyiniz yerdən öyrənmək</p>
+</div>
+</div>
+</div>
+
+<section class="py-24 bg-white">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center mb-16">
+<h2 class="text-3xl font-bold mb-4">Statistik Göstəricilər</h2>
+<p class="text-gray-600">FiloSoft-dan istifadə edən istifadəçilər üzrə</p>
+</div>
+<div class="grid md:grid-cols-4 gap-8 text-center">
+<div>
+<div class="text-4xl font-bold text-primary mb-2">10,000+</div>
+<div class="text-gray-600">Aktiv tələbə</div>
+</div>
+<div>
+<div class="text-4xl font-bold text-primary mb-2">150+</div>
+<div class="text-gray-600">Onlayn Test</div>
+</div>
+<div>
+<div class="text-4xl font-bold text-primary mb-2">50+</div>
+<div class="text-gray-600">Müəllim və ekspert</div>
+</div>
+<div>
+<div class="text-4xl font-bold text-primary mb-2">100%</div>
+<div class="text-gray-600">Məmnuniyyət</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-gradient-to-r from-primary/5 to-primary/10">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center mb-16">
+<h2 class="text-3xl font-bold mb-4">Rəylər</h2>
+<p class="text-gray-600">FiloSoft tətbiqindən razı qalan istifadəçilərin rəyləri</p>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="bg-white p-8 rounded-lg shadow-lg">
+<div class="flex items-center mb-4">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+<i class="ri-user-line text-xl text-primary"></i>
+</div>
+<div>
+<h4 class="font-semibold">Test User</h4>
+<p class="text-sm text-gray-500">Azerbaijan, Baku</p>
+</div>
+</div>
+<p class="text-gray-600">"FiloSoft çox maraqlı və maarifləndirici bir tətbiqdir. Bu platforma həm təcrübəli müəllimlərin, həm də yeni başlayanların istifadəsi üçün əla bir yol təqdim edir."</p>
+</div>
+<div class="bg-white p-8 rounded-lg shadow-lg">
+<div class="flex items-center mb-4">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+<i class="ri-user-line text-xl text-primary"></i>
+</div>
+<div>
+<h4 class="font-semibold">Test User 2</h4>
+<p class="text-sm text-gray-500">Azerbaijan, Baku</p>
+</div>
+</div>
+<p class="text-gray-600">"Onlayn testlərdə qısa və uzun imtahanların olması və çeşidliliyin olması çox yaxşı bir haldır."</p>
+</div>
+<div class="bg-white p-8 rounded-lg shadow-lg">
+<div class="flex items-center mb-4">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
+<i class="ri-user-line text-xl text-primary"></i>
+</div>
+<div>
+<h4 class="font-semibold">Test User 3</h4>
+<p class="text-sm text-gray-500">Azerbaijan, Baku</p>
+</div>
+</div>
+<p class="text-gray-600">"Seçdiyim mövzular əsasında çox yaxşı dərslər aldım."</p>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-white">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="bg-gradient-to-r from-primary to-secondary rounded-xl p-12 text-center text-white">
+<h2 class="text-3xl font-bold mb-6">Elə indi başlayın</h2>
+<p class="text-xl mb-8">FiloSoft ilə gələcək karyeranıza bir addım yaxınlaşın</p>
+<a href="auth.html" class="px-8 py-3 bg-white text-primary !rounded-button hover:bg-gray-100 transition-colors whitespace-nowrap">
+Hesab yarat
+</a>
+</div>
+</div>
+</section>
+</main>
+<footer class="bg-gray-900 text-white py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid md:grid-cols-4 gap-8">
+<div>
+<img src="assets/FiloSoft.svg" alt="FiloSoft Logo" class="h-16  mb-4">
+<p class="text-gray-400">Rəqəmsal təhsil hər yerdə</p>
+</div>
+<div>
+<h4 class="text-lg font-semibold mb-4">Sürətli əlçatanlıq</h4>
+<ul class="space-y-2">
+<li><a href="#" class="text-gray-400 hover:text-white">Əsas Səhifə</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white">Onlayn Testlər</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white">Onlayn Dərslər</a></li>
+<li><a href="#" class="text-gray-400 hover:text-white">Haqqımızda</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-lg font-semibold mb-4">Əlaqə</h4>
+<ul class="space-y-2">
+<li class="text-gray-400">info@filosoft.az</li>
+<li class="text-gray-400">+994 00 000 00 00</li>
+<li class="text-gray-400">Azərbaycan, Baku</li>
+</ul>
+</div>
+<div>
+<h4 class="text-lg font-semibold mb-4">Sosial Media</h4>
+<div class="flex space-x-4">
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-linkedin-fill text-2xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-facebook-fill text-2xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-white">
+<i class="ri-instagram-fill text-2xl"></i>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+<p>&copy; 2025 FiloSoft. Müəlliflik hüququ qorunur.</p>
+</div>
+</div>
+</footer>
+<script>
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+      behavior: 'smooth',
+    });
+  });
+});
+</script>
+<script src="assets/js/auth.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Check if user is logged in
+        const isUserLoggedIn = isLoggedIn();
+        const authLinks = document.getElementById('authLinks');
+        const profileLink = document.getElementById('profileLink');
+        const interactiveElements = document.querySelectorAll('.redirect-to-auth');
+        
+        if (isUserLoggedIn) {
+            // Show profile link, hide auth links
+            if (authLinks) authLinks.style.display = 'none';
+            if (profileLink) profileLink.style.display = 'flex';
+            
+            // Initialize profile if we're on profile page
+            const profileContainer = document.getElementById('profileContainer');
+            if (profileContainer) {
+                renderProfile('profileContainer');
+            }
+        } else {
+            // Show auth links, hide profile link
+            if (authLinks) authLinks.style.display = 'flex';
+            if (profileLink) profileLink.style.display = 'none';
+            
+            // Add click handlers to interactive elements to redirect to auth
+            if (interactiveElements.length > 0) {
+                interactiveElements.forEach(element => {
+                    element.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.location.href = 'auth.html';
+                    });
+                });
+            }
+        }
+    });
+</script>
+</body>
+</html>
